@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="ShadowLayout">
+        <attr name="background_radius" format="dimension" />
+        <attr name="background_top_left_radius" format="dimension" />
+        <attr name="background_top_right_radius" format="dimension" />
+        <attr name="background_bottom_left_radius" format="dimension" />
+        <attr name="background_bottom_right_radius" format="dimension" />
+        <attr name="background_color" format="color" />
+        <attr name="background_stroke_width" format="dimension" />
+        <attr name="background_stroke_color" format="color" />
+
+        <attr name="first_shadow_enable" format="boolean"/>
+        <attr name="first_shadow_color" format="color" />
+        <attr name="first_shadow_spread" format="dimension" />
+        <attr name="first_shadow_offset_x" format="dimension" />
+        <attr name="first_shadow_offset_y" format="dimension" />
+        <attr name="first_shadow_blur" format="dimension" />
+
+        <attr name="second_shadow_enable" format="boolean"/>
+        <attr name="second_shadow_color" format="color" />
+        <attr name="second_shadow_spread" format="dimension" />
+        <attr name="second_shadow_offset_x" format="dimension" />
+        <attr name="second_shadow_offset_y" format="dimension" />
+        <attr name="second_shadow_blur" format="dimension" />
+
+        <attr name="inner_gradient_enable" format="boolean"/>
+        <attr name="inner_gradient_start_color" format="color"/>
+        <attr name="inner_gradient_center_color" format="color"/>
+        <attr name="inner_gradient_end_color" format="color"/>
+        <attr name="inner_gradient_angle" format="integer"/>
+        <attr name="inner_gradient_offset_x" format="dimension"/>
+        <attr name="inner_gradient_offset_y" format="dimension"/>
+    </declare-styleable>
+</resources>
