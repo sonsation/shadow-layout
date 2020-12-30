@@ -1,4 +1,4 @@
-package com.sonsation.library
+package com.sonsation.labs
 
 import androidx.test.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4

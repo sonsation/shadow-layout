@@ -1,4 +1,4 @@
-package com.sonsation.library
+package com.sonsation.labs
 
 import org.junit.Test
 

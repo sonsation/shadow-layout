@@ -32,5 +32,6 @@
         <attr name="inner_gradient_angle" format="integer"/>
         <attr name="inner_gradient_offset_x" format="dimension"/>
         <attr name="inner_gradient_offset_y" format="dimension"/>
+        <attr name="inner_gradient_margin" format="dimension"/>
     </declare-styleable>
 </resources>
