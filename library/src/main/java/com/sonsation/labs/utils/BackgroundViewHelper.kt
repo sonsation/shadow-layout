@@ -13,40 +13,9 @@ class BackgroundViewHelper(context: Context) : ViewHelper(context) {
     private val mStrokePaint by lazy { Paint() }
     private val mStrokePath by lazy { Path() }
 
-    override fun parseTypedArray(typedArray: TypedArray) {
-
-        with (typedArray) {
-
-            mRadius = getDimension(R.styleable.ShadowLayout_background_radius, 0f)
-
-            if (mRadius == 0f) {
-                mBottomLeftRadius = getDimension(R.styleable.ShadowLayout_background_radius, 0f)
-                mBottomRightRadius = getDimension(R.styleable.ShadowLayout_background_radius, 0f)
-                mTopLeftRadius = getDimension(R.styleable.ShadowLayout_background_radius, 0f)
-                mTopRightRadius = getDimension(R.styleable.ShadowLayout_background_radius, 0f)
-            }
-
-            color = getColor(
-                R.styleable.ShadowLayout_background_color,
-                -1
-            )
-
-            mStrokeColor = getColor(
-                R.styleable.ShadowLayout_background_stroke_color,
-                -101
-            )
-
-            mStrokeWidth =
-                getDimension(R.styleable.ShadowLayout_background_stroke_width, 0f)
-        }
-    }
-
     override fun draw() {
 
-        if (canvas == null)
-            return
-
-        if (enableStroke) {
+        /*if (enableStroke) {
 
             if (mStrokeWidth > (canvas!!.width / 2) || mStrokeWidth > (canvas!!.height / 2)) {
                 mStrokeWidth = dpToPx(1f)
@@ -56,11 +25,11 @@ class BackgroundViewHelper(context: Context) : ViewHelper(context) {
             offsetRight = canvas!!.width.toFloat() - mStrokeWidth / 2
             offsetTop = 0f
             offsetBottom = canvas!!.height.toFloat()
-        }
+        }*/
 
         super.draw()
 
-        if (enableStroke) {
+        /*if (enableStroke) {
 
             mStrokePaint.apply {
                 isAntiAlias = true
@@ -86,41 +55,11 @@ class BackgroundViewHelper(context: Context) : ViewHelper(context) {
             }
 
             canvas?.drawPath(mStrokePath, mStrokePaint)
-        }
+        }*/
     }
 
     override fun updateCanvas(canvas: Canvas?) {
         super.updateCanvas(canvas)
-        draw()
-    }
-
-    override fun updateRadius(radius: Float) {
-        super.updateRadius(radius)
-        draw()
-    }
-
-    override fun updateRadius(
-        topLeftRadius: Float,
-        topRightRadius: Float,
-        bottomLeftRadius: Float,
-        bottomRightRadius: Float
-    ) {
-        super.updateRadius(topLeftRadius, topRightRadius, bottomLeftRadius, bottomRightRadius)
-        draw()
-    }
-
-    fun updateStrokeWidth(width: Float) {
-        mStrokeWidth = width
-        draw()
-    }
-
-    fun updateStrokeColor(color: Int) {
-        mStrokeColor = color
-        draw()
-    }
-
-    fun updateBackgroundColor(color: Int) {
-        this.color = color
         draw()
     }
 }

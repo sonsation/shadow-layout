@@ -5,34 +5,17 @@ import android.graphics.*
 import android.os.Build
 import android.util.AttributeSet
 import android.widget.FrameLayout
-import com.example.sampleapp.utils.GradientViewHelper
-import com.sonsation.labs.utils.BackgroundViewHelper
+import com.sonsation.labs.stores.GradientStore
+import com.sonsation.labs.stores.RadiusStore
+import com.sonsation.labs.utils.*
 
 class ShadowLayout : FrameLayout {
 
-    private var mRadius = 0f
-    private var mTopLeftRadius = 0f
-    private var mTopRightRadius = 0f
-    private var mBottomLeftRadius = 0f
-    private var mBottomRightRadius = 0f
+    private val gradientStore by lazy { GradientStore() }
+    private val radiusStore by lazy { RadiusStore() }
 
-    private var mFirstShadowEnable = false
-    private var mFirstShadowColor = -101
-    private var mFirstShadowOffsetX = 0f
-    private var mFirstShadowOffsetY = 0f
-    private var mFirstShadowBlur = 0f
-
-    private var mSecondShadowEnable = false
-    private var mSecondShadowColor = -1
-    private var mSecondShadowOffsetX = 0f
-    private var mSecondShadowOffsetY = 0f
-    private var mSecondShadowBlur = 0f
-
-    private val gradientViewHelper by lazy { GradientViewHelper(context) }
-    private val backgroundViewHelper by lazy { BackgroundViewHelper(context) }
-    private val shadowPaint by lazy {
-        Paint()
-    }
+    val gradientViewHelper by lazy { GradientViewHelper(context) }
+    val backgroundViewHelper by lazy { BackgroundViewHelper(context) }
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet) {
@@ -62,43 +45,46 @@ class ShadowLayout : FrameLayout {
 
         try {
 
-            backgroundViewHelper.parseTypedArray(a)
-            gradientViewHelper.parseTypedArray(a)
+            with (a) {
+                radiusStore.updateRadius(getDimension(R.styleable.ShadowLayout_background_radius, 0f))
+                radiusStore.updateRadius(
+                    getDimension(R.styleable.ShadowLayout_background_radius, 0f),
+                    getDimension(R.styleable.ShadowLayout_background_radius, 0f),
+                    getDimension(R.styleable.ShadowLayout_background_radius, 0f),
+                    getDimension(R.styleable.ShadowLayout_background_radius, 0f)
+                )
 
-            //default background settings
-            mRadius = a.getDimension(R.styleable.ShadowLayout_background_radius, 0f)
+                gradientStore.enableGradient = getBoolean(R.styleable.ShadowLayout_inner_gradient_enable, false)
+                gradientStore.gradientAngle = getInt(R.styleable.ShadowLayout_inner_gradient_angle, 0)
+                gradientStore.gradientOffsetX =
+                    getDimension(R.styleable.ShadowLayout_inner_gradient_offset_x, 0f)
+                gradientStore.gradientOffsetY =
+                    getDimension(R.styleable.ShadowLayout_inner_gradient_offset_y, 0f)
+                gradientStore.gradientStartColor = getColor(
+                    R.styleable.ShadowLayout_inner_gradient_start_color,
+                    ViewHelper.NOT_SET_COLOR
+                )
+                gradientStore.gradientCenterColor = getColor(
+                    R.styleable.ShadowLayout_inner_gradient_start_color,
+                    ViewHelper.NOT_SET_COLOR
+                )
+                gradientStore.gradientEndColor = getColor(
+                    R.styleable.ShadowLayout_inner_gradient_end_color,
+                    ViewHelper.NOT_SET_COLOR
+                )
 
-            if (mRadius == 0f) {
-                mBottomLeftRadius = a.getDimension(R.styleable.ShadowLayout_background_radius, 0f)
-                mBottomRightRadius = a.getDimension(R.styleable.ShadowLayout_background_radius, 0f)
-                mTopLeftRadius = a.getDimension(R.styleable.ShadowLayout_background_radius, 0f)
-                mTopRightRadius = a.getDimension(R.styleable.ShadowLayout_background_radius, 0f)
+                gradientStore.gradientMargin = getDimension(R.styleable.ShadowLayout_inner_gradient_margin, 0f)
+
+                backgroundViewHelper.apply {
+                    this.gradientStore = this@ShadowLayout.gradientStore
+                    this.radiusStore = this@ShadowLayout.radiusStore
+                    this.backgroundColor = getColor(R.styleable.ShadowLayout_background_color, ViewHelper.NOT_SET_COLOR)
+                }
+                gradientViewHelper.apply {
+                    this.gradientStore = this@ShadowLayout.gradientStore
+                    this.radiusStore = this@ShadowLayout.radiusStore
+                }
             }
-
-            //first shadow settings
-            mFirstShadowEnable = a.getBoolean(R.styleable.ShadowLayout_first_shadow_enable, false)
-            mFirstShadowColor = a.getColor(
-                R.styleable.ShadowLayout_first_shadow_color,
-                -1
-            )
-            mFirstShadowOffsetX = a.getDimension(R.styleable.ShadowLayout_first_shadow_offset_x, 0f)
-            mFirstShadowOffsetY = a.getDimension(R.styleable.ShadowLayout_first_shadow_offset_y, 0f)
-            mFirstShadowBlur = a.getDimension(R.styleable.ShadowLayout_first_shadow_blur, 0f)
-
-            //second shadow settings
-            mSecondShadowEnable = a.getBoolean(R.styleable.ShadowLayout_second_shadow_enable, false)
-            mSecondShadowColor = a.getColor(
-                R.styleable.ShadowLayout_second_shadow_color,
-                -101
-            )
-            mSecondShadowOffsetX =
-                a.getDimension(R.styleable.ShadowLayout_second_shadow_offset_x, 0f)
-            mSecondShadowOffsetY =
-                a.getDimension(R.styleable.ShadowLayout_second_shadow_offset_y, 0f)
-            mSecondShadowBlur = a.getDimension(R.styleable.ShadowLayout_second_shadow_blur, 0f)
-
-            //inner gradient settings
-
         } finally {
             a.recycle()
         }
@@ -110,26 +96,6 @@ class ShadowLayout : FrameLayout {
         if (canvas == null)
             return
 
-        if (mSecondShadowEnable) {
-            drawBackgroundShadow(
-                canvas,
-                mSecondShadowOffsetX,
-                mSecondShadowOffsetY,
-                mSecondShadowBlur,
-                mSecondShadowColor
-            )
-        }
-
-        if (mFirstShadowEnable) {
-            drawBackgroundShadow(
-                canvas,
-                mFirstShadowOffsetX,
-                mFirstShadowOffsetY,
-                mFirstShadowBlur,
-                mFirstShadowColor
-            )
-        }
-
         backgroundViewHelper.updateCanvas(canvas)
         gradientViewHelper.updateCanvas(canvas)
     }
@@ -140,67 +106,13 @@ class ShadowLayout : FrameLayout {
     }
 
     private fun updatePadding() {
-        if (backgroundViewHelper.mStrokeWidth != 0f) {
+        /*if (backgroundViewHelper.mStrokeWidth != 0f) {
             val padding = backgroundViewHelper.mStrokeWidth.toInt()
             setPadding(padding, padding, padding, padding)
-        }
+        }*/
     }
 
-    private fun drawBackgroundShadow(
-        canvas: Canvas?,
-        dx: Float,
-        dy: Float,
-        blurSize: Float,
-        shadowColor: Int
-    ) {
-
-        if (canvas == null || canvas.height == 0 || canvas.width == 0)
-            return
-
-        shadowPaint.apply {
-            color = shadowColor
-            isAntiAlias = true
-            maskFilter = BlurMaskFilter(blurSize, BlurMaskFilter.Blur.NORMAL)
-        }
-
-        val path = Path().apply {
-
-            val offsetLeft = dx
-            val offsetRight = canvas.width.toFloat() + dx
-            val offsetTop = dy
-            val offsetBottom = canvas.height.toFloat() + dy
-
-            val shadowRect = RectF(offsetLeft, offsetTop, offsetRight, offsetBottom)
-            addRoundRect(shadowRect, getRadiusArray(), Path.Direction.CW)
-        }
-
-        canvas.drawPath(path, shadowPaint)
-    }
-
-    private fun getRadiusArray(): FloatArray {
-
-        if (mRadius != 0f) {
-            return floatArrayOf(
-                mRadius,
-                mRadius,
-                mRadius,
-                mRadius,
-                mRadius,
-                mRadius,
-                mRadius,
-                mRadius
-            )
-        }
-
-        return floatArrayOf(
-            mTopLeftRadius,
-            mTopLeftRadius,
-            mTopRightRadius,
-            mTopRightRadius,
-            mBottomLeftRadius,
-            mBottomLeftRadius,
-            mBottomRightRadius,
-            mBottomRightRadius
-        )
+    override fun setBackgroundColor(color: Int) {
+        backgroundViewHelper.setBackgroundColor(color)
     }
 }

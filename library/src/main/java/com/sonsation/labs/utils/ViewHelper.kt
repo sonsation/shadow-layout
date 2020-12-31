@@ -1,26 +1,20 @@
 package com.sonsation.labs.utils
 
 import android.content.Context
-import android.content.res.TypedArray
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
+import com.sonsation.labs.stores.GradientStore
+import com.sonsation.labs.stores.RadiusStore
 
 abstract class ViewHelper(private val context: Context) : Paint() {
 
     var canvas: Canvas? = null
-    var mRadius = 0f
-    var mTopLeftRadius = 0f
-    var mTopRightRadius = 0f
-    var mBottomLeftRadius = 0f
-    var mBottomRightRadius = 0f
     private val path by lazy { Path() }
-
-    var enableStroke: Boolean = false
-        get() = mStrokeWidth != 0f && mStrokeColor != NOT_SET_COLOR
-    var mStrokeWidth = 0f
-    var mStrokeColor = NOT_SET_COLOR
+    var gradientStore: GradientStore? = null
+    var radiusStore:  RadiusStore? = null
+    var backgroundColor = NOT_SET_COLOR
 
     var offsetTop = 0f
     var offsetBottom = 0f
@@ -33,9 +27,10 @@ abstract class ViewHelper(private val context: Context) : Paint() {
 
     companion object {
         const val NOT_SET_COLOR = -101
+        const val FIRST_SHADOW = 0
+        const val SECOND_SHADOW = 1
+        const val NOT_SET_SHADOW_TYPE = -1
     }
-
-    abstract fun parseTypedArray(typedArray: TypedArray)
 
     open fun draw() {
 
@@ -52,47 +47,30 @@ abstract class ViewHelper(private val context: Context) : Paint() {
         if (canvas == null)
             return
 
+        if (radiusStore == null)
+            return
+
         val roundRect = RectF(offsetLeft, offsetTop, offsetRight, offsetBottom)
 
         path.apply {
             reset()
-            addRoundRect(roundRect, getRadiusArray(), Path.Direction.CW)
+            addRoundRect(roundRect, radiusStore!!.getRadiusArray(), Path.Direction.CW)
             close()
         }
     }
 
-    open fun getRadiusArray(): FloatArray {
-        return if (mRadius != 0f) {
-            floatArrayOf(mRadius, mRadius, mRadius, mRadius, mRadius, mRadius, mRadius, mRadius)
-        } else {
-            floatArrayOf(
-                mTopLeftRadius,
-                mTopLeftRadius,
-                mTopRightRadius,
-                mTopRightRadius,
-                mBottomLeftRadius,
-                mBottomLeftRadius,
-                mBottomRightRadius,
-                mBottomRightRadius
-            )
-        }
+    fun updateOffset(left: Float, top: Float, right: Float, bottom: Float) {
+
+        if (canvas == null)
+            return
+
+        offsetLeft = 0f + left
+        offsetRight = canvas!!.width.toFloat() + right
+        offsetTop = 0f + top
+        offsetBottom = canvas!!.height.toFloat() + bottom
     }
 
     open fun updateRadius(radius: Float) {
-        mRadius = radius
-        draw()
-    }
-
-    open fun updateRadius(
-        topLeftRadius: Float,
-        topRightRadius: Float,
-        bottomLeftRadius: Float,
-        bottomRightRadius: Float
-    ) {
-        mTopLeftRadius = topLeftRadius
-        mTopRightRadius = topRightRadius
-        mBottomLeftRadius = bottomLeftRadius
-        mBottomRightRadius = bottomRightRadius
         draw()
     }
 
@@ -108,6 +86,12 @@ abstract class ViewHelper(private val context: Context) : Paint() {
         offsetTop = 0f
         offsetBottom = canvas.height.toFloat()
 
+        draw()
+    }
+
+    @JvmName("setBackgroundColorMethod")
+    fun setBackgroundColor(color: Int) {
+        this.backgroundColor = color
         draw()
     }
 
