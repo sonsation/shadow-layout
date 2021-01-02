@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="ShadowLayout">
+        <attr name="clipToOutline" format="boolean"/>
+        <attr name="background_radius" format="dimension" />
+        <attr name="background_top_left_radius" format="dimension" />
+        <attr name="background_top_right_radius" format="dimension" />
+        <attr name="background_bottom_left_radius" format="dimension" />
+        <attr name="background_bottom_right_radius" format="dimension" />
+        <attr name="background_color" format="color" />
+
+        <attr name="stroke_width" format="dimension" />
+        <attr name="stroke_color" format="color" />
+        <attr name="stroke_gradient_start_color" format="color"/>
+        <attr name="stroke_gradient_center_color" format="color"/>
+        <attr name="stroke_gradient_end_color" format="color"/>
+        <attr name="stroke_gradient_angle" format="integer"/>
+        <attr name="stroke_gradient_offset_x" format="dimension"/>
+        <attr name="stroke_gradient_offset_y" format="dimension"/>
+
+        <attr name="shadow_color" format="color" />
+        <attr name="shadow_offset_x" format="dimension" />
+        <attr name="shadow_offset_y" format="dimension" />
+        <attr name="shadow_blur" format="dimension" />
+        <attr name="shadow_array" format="string"/>
+
+        <attr name="inner_shadow_color" format="color" />
+        <attr name="inner_shadow_blur" format="dimension" />
+        <attr name="inner_shadow_type" format="string" />
+        <attr name="inner_shadow_array" format="string"/>
+
+        <attr name="gradient_start_color" format="color"/>
+        <attr name="gradient_center_color" format="color"/>
+        <attr name="gradient_end_color" format="color"/>
+        <attr name="gradient_angle" format="integer"/>
+        <attr name="gradient_offset_x" format="dimension"/>
+        <attr name="gradient_offset_y" format="dimension"/>
+        <attr name="gradient_margin" format="dimension"/>
+    </declare-styleable>
+</resources>
