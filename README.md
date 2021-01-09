@@ -10,6 +10,6 @@ and:
 
 ```gradle
 dependencies {
-    compile 'com.github.sonsation:ShadowLayout:1.1.0'
+    compile 'com.github.sonsation:shadow-layout:1.1.0'
 }
 ```
