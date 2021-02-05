@@ -45,6 +45,8 @@ class ShadowLayout : FrameLayout {
 
         try {
 
+            setBackgroundResource(android.R.color.transparent)
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 clipToOutline = a.getBoolean(R.styleable.ShadowLayout_clipToOutline, false)
             }
@@ -331,12 +333,12 @@ class ShadowLayout : FrameLayout {
     }
 
     fun updateStrokeWidth(strokeWidth: Float) {
-        viewHelper.strokeInfo?.strokeWidth = strokeWidth
+        background.updateStrokeWidth(strokeWidth)
         postInvalidate()
     }
 
     fun updateStrokeColor(color: Int) {
-        viewHelper.strokeInfo?.strokeColor = color
+        background.updateStrokeColor(color)
         postInvalidate()
     }
 
