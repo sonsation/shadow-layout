@@ -39,10 +39,10 @@ class Radius {
                 topLeftRadius,
                 topRightRadius,
                 topRightRadius,
-                bottomLeftRadius,
-                bottomLeftRadius,
                 bottomRightRadius,
-                bottomRightRadius
+                bottomRightRadius,
+                bottomLeftRadius,
+                bottomLeftRadius
         )
     }
 }
