@@ -77,6 +77,8 @@ class ViewHelper(private val context: Context) {
         if (split.isEmpty())
             return null
 
+        split.map { it.trim() }
+
         split.forEach {
 
             val splitArray = it.split(",")
