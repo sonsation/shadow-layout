@@ -4,8 +4,6 @@ import android.content.Context
 import android.graphics.*
 import android.os.Build
 import android.util.AttributeSet
-import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.sonsation.library.effet.*
 import com.sonsation.library.utils.ViewHelper
@@ -20,6 +18,7 @@ class ShadowLayout : FrameLayout {
     private val foregroundShadowList by lazy { mutableListOf<Shadow>() }
 
     private var isInit = false
+    private var defaultAlpha = 0f
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet) {
@@ -49,7 +48,7 @@ class ShadowLayout : FrameLayout {
 
         try {
 
-            val defaultAlpha = a.getFloat(R.styleable.ShadowLayout_android_alpha, 1f)
+            defaultAlpha = a.getFloat(R.styleable.ShadowLayout_android_alpha, 1f)
 
             setBackgroundResource(android.R.color.transparent)
 
@@ -231,7 +230,17 @@ class ShadowLayout : FrameLayout {
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
+
         updatePadding()
+
+        if (defaultAlpha != 0f) {
+
+            for (i in 0 until childCount) {
+                getChildAt(i)?.alpha = defaultAlpha
+            }
+
+            defaultAlpha = 0f
+        }
     }
 
     private fun updatePadding() {
@@ -423,6 +432,12 @@ class ShadowLayout : FrameLayout {
 
         foregroundShadowList.forEach {
             it.updateAlpha(alpha)
+        }
+
+        postInvalidate()
+
+        for (i in 0 until childCount) {
+            getChildAt(i)?.alpha = alpha
         }
     }
 }

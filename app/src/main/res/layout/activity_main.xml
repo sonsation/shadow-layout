@@ -8,11 +8,12 @@
     tools:context=".MainActivity">
 
     <com.sonsation.library.ShadowLayout
+        android:id="@+id/shadow_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
-        android:alpha="1.0"
+        android:alpha="0.5"
         app:background_color="#8d00af"
         app:background_radius="10dp"
         app:shadow_array="{20,0,4,#663f004f}"
@@ -32,5 +33,10 @@
             android:gravity="center"/>
 
     </com.sonsation.library.ShadowLayout>
+
+    <SeekBar
+        android:id="@+id/seek_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
