@@ -9,6 +9,8 @@
         <attr name="background_bottom_left_radius" format="dimension" />
         <attr name="background_bottom_right_radius" format="dimension" />
         <attr name="background_color" format="color" />
+        <attr name="android:background" format="integer"/>
+        <attr name="alpha" format="float"/>
 
         <attr name="stroke_width" format="dimension" />
         <attr name="stroke_color" format="color" />

@@ -1,6 +1,7 @@
 package com.sonsation.library.effet
 
 import android.graphics.*
+import com.sonsation.library.utils.Util
 import com.sonsation.library.utils.ViewHelper
 
 class Background : Effect {
@@ -14,15 +15,22 @@ class Background : Effect {
     override var offsetTop = 0f
     override var offsetRight = 0f
     override var offsetBottom = 0f
+    override var alpha = 0
 
     private var backgroundColor = ViewHelper.NOT_SET_COLOR
     private var strokeInfo: Stroke? = null
     private var shadowInfo: Shadow? = null
 
-    fun init(strokeInfo: Stroke?, backgroundColor: Int) {
+    fun init(strokeInfo: Stroke?, alpha: Float, backgroundColor: Int) {
         this.strokeInfo = strokeInfo
         this.backgroundColor = backgroundColor
+        this.alpha = Util.floatAlphaToIntAlpha(alpha)
 
+        updatePaint()
+    }
+
+    override fun updateAlpha(alpha: Float) {
+        this.alpha = Util.floatAlphaToIntAlpha(alpha)
         updatePaint()
     }
 
@@ -36,10 +44,12 @@ class Background : Effect {
     override fun updatePaint() {
 
         if (strokeInfo != null && strokeInfo!!.isEnable) {
+
             strokePaint.apply {
                 isAntiAlias = true
                 style = Paint.Style.STROKE
                 strokeWidth = strokeInfo!!.strokeWidth
+                alpha = this@Background.alpha
                 color = strokeInfo!!.strokeColor
 
                 if (strokeInfo!!.gradient != null && strokeInfo!!.gradient!!.isEnable) {
@@ -51,6 +61,7 @@ class Background : Effect {
         paint.apply {
             isAntiAlias = true
             color = backgroundColor
+            alpha = this@Background.alpha
             style = Paint.Style.FILL_AND_STROKE
         }
     }

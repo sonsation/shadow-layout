@@ -1,6 +1,7 @@
 package com.sonsation.library.effet
 
 import android.graphics.*
+import com.sonsation.library.utils.Util
 import com.sonsation.library.utils.ViewHelper
 
 class Gradient : Effect {
@@ -12,6 +13,7 @@ class Gradient : Effect {
     override var offsetTop = 0f
     override var offsetRight = 0f
     override var offsetBottom = 0f
+    override var alpha = 0
 
     val isEnable: Boolean
         get() = gradientStartColor != ViewHelper.NOT_SET_COLOR && gradientEndColor != ViewHelper.NOT_SET_COLOR && gradientAngle != -1
@@ -31,6 +33,10 @@ class Gradient : Effect {
         this.gradientOffsetY = offsetY
 
         updatePaint()
+    }
+
+    override fun updateAlpha(alpha: Float) {
+        this.alpha = Util.floatAlphaToIntAlpha(alpha)
     }
 
     override fun updateOffset(left: Float, top: Float, right: Float, bottom: Float) {

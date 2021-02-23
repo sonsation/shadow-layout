@@ -14,8 +14,11 @@ interface Effect {
     var offsetRight: Float
     var offsetBottom: Float
 
+    var alpha: Int
+
     fun updateOffset(left: Float, top: Float, right: Float, bottom: Float)
     fun updatePaint()
     fun updatePath(radiusInfo: Radius?)
     fun drawEffect(canvas: Canvas?)
+    fun updateAlpha(alpha: Float)
 }

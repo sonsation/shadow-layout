@@ -61,7 +61,7 @@ class ViewHelper(private val context: Context) {
         }
     }
 
-    fun parseShadowArray(isBackground: Boolean, arrays: String?): List<Shadow>? {
+    fun parseShadowArray(isBackground: Boolean, alpha: Float, arrays: String?): List<Shadow>? {
 
         if (arrays.isNullOrEmpty())
             return null
@@ -79,7 +79,8 @@ class ViewHelper(private val context: Context) {
 
         split.forEach {
 
-            val splitArray = it.split(",")
+            val splitArray = it.split(",").map { it.trim() }
+
             if (splitArray.size != 4)
                 return null
 
@@ -101,7 +102,7 @@ class ViewHelper(private val context: Context) {
             }
 
             val shadow = Shadow().apply {
-                init(isBackground, blurSize, offsetX, offsetY, color)
+                init(isBackground, alpha, blurSize, offsetX, offsetY, color)
             }
 
             list.add(shadow)
