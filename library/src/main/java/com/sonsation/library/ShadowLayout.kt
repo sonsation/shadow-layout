@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.*
 import android.os.Build
 import android.util.AttributeSet
+import android.util.Log
 import android.widget.FrameLayout
 import com.sonsation.library.effet.*
 import com.sonsation.library.utils.ViewHelper
@@ -233,13 +234,8 @@ class ShadowLayout : FrameLayout {
 
         updatePadding()
 
-        if (defaultAlpha != 0f) {
-
-            for (i in 0 until childCount) {
-                getChildAt(i)?.alpha = defaultAlpha
-            }
-
-            defaultAlpha = 0f
+        for (i in 0 until childCount) {
+            getChildAt(i)?.alpha = defaultAlpha
         }
     }
 

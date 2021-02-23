@@ -14,7 +14,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<SeekBar>(R.id.seek_bar).max = 255
         findViewById<SeekBar>(R.id.seek_bar).setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                findViewById<ShadowLayout>(R.id.shadow_layout).alpha = progress.toFloat()
+                findViewById<ShadowLayout>(R.id.shadow_layout).alpha = progress.toFloat() / 255
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {

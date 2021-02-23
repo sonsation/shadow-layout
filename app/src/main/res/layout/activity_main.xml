@@ -7,32 +7,40 @@
     android:clipChildren="false"
     tools:context=".MainActivity">
 
-    <com.sonsation.library.ShadowLayout
-        android:id="@+id/shadow_layout"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:alpha="0.5"
-        app:background_color="#8d00af"
-        app:background_radius="10dp"
-        app:shadow_array="{20,0,4,#663f004f}"
+        android:background="#000000"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <TextView
+        <com.sonsation.library.ShadowLayout
+            android:id="@+id/shadow_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:textSize="22sp"
-            android:textColor="#ffffff"
-            android:text="TEST"
-            android:gravity="center"/>
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:alpha="0"
+            app:background_color="#8d00af"
+            app:background_radius="10dp"
+            app:shadow_array="{20,0,4,#663f004f}"
+            >
 
-    </com.sonsation.library.ShadowLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:textSize="22sp"
+                android:textColor="#ffffff"
+                android:text="TEST"
+                android:gravity="center"/>
+
+        </com.sonsation.library.ShadowLayout>
+
+    </FrameLayout>
 
     <SeekBar
         android:id="@+id/seek_bar"
