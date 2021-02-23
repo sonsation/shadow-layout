@@ -18,6 +18,8 @@ class ShadowLayout : FrameLayout {
     private val backgroundShadowList by lazy { mutableListOf<Shadow>() }
     private val foregroundShadowList by lazy { mutableListOf<Shadow>() }
 
+    private var isInit = false
+
     constructor(context: Context) : super(context)
     constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet) {
         init(context, attributeSet, 0)
@@ -46,7 +48,7 @@ class ShadowLayout : FrameLayout {
 
         try {
 
-            val alpha = a.getFloat(R.styleable.ShadowLayout_alpha, 1f)
+            val alpha = a.getFloat(R.styleable.ShadowLayout_android_alpha, 1f)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 clipToOutline = a.getBoolean(R.styleable.ShadowLayout_clipToOutline, false)
@@ -177,6 +179,7 @@ class ShadowLayout : FrameLayout {
 
         } finally {
             a.recycle()
+            isInit = true
         }
     }
 
@@ -380,6 +383,10 @@ class ShadowLayout : FrameLayout {
     }
 
     override fun setAlpha(alpha: Float) {
+
+        if (!isInit)
+            return
+
         backgroundShadowList.forEach {
             it.updateAlpha(alpha)
         }

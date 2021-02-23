@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
-        app:alpha="0.5"
+        android:alpha="0.5"
         app:background_color="#000000"
         app:background_radius="20dp"
         app:shadow_array="{10,0,10,  #8d00af}"
