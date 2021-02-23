@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.*
 import android.os.Build
 import android.util.AttributeSet
+import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.sonsation.library.effet.*
 import com.sonsation.library.utils.ViewHelper
@@ -16,6 +18,8 @@ class ShadowLayout : FrameLayout {
 
     private val backgroundShadowList by lazy { mutableListOf<Shadow>() }
     private val foregroundShadowList by lazy { mutableListOf<Shadow>() }
+
+    private var isInit = false
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet) {
@@ -45,11 +49,9 @@ class ShadowLayout : FrameLayout {
 
         try {
 
-            setBackgroundResource(android.R.color.transparent)
+            val defaultAlpha = a.getFloat(R.styleable.ShadowLayout_android_alpha, 1f)
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                clipToOutline = a.getBoolean(R.styleable.ShadowLayout_clipToOutline, false)
-            }
+            setBackgroundResource(android.R.color.transparent)
 
             //default background settings
             val backgroundColor = if (a.hasValue(R.styleable.ShadowLayout_background_color)) {
@@ -97,6 +99,7 @@ class ShadowLayout : FrameLayout {
             }
 
             background.init(viewHelper.strokeInfo, backgroundColor)
+            background.updateAlpha(defaultAlpha)
 
             viewHelper.radiusInfo = Radius().apply {
                 radius = a.getDimension(R.styleable.ShadowLayout_background_radius, 0f)
@@ -125,6 +128,8 @@ class ShadowLayout : FrameLayout {
                     val shadowBlurSize = a.getDimension(R.styleable.ShadowLayout_shadow_blur, 0f)
 
                     init(true, shadowBlurSize, shadowOffsetX, shadowOffsetY, shadowColor)
+
+                    updateAlpha(defaultAlpha)
                 }
 
                 add(shadow)
@@ -135,6 +140,9 @@ class ShadowLayout : FrameLayout {
                 )
 
                 if (shadows != null) {
+                    shadows.forEach {
+                        it.updateAlpha(defaultAlpha)
+                    }
                     addAll(shadows)
                 }
             }
@@ -166,6 +174,9 @@ class ShadowLayout : FrameLayout {
                 )
 
                 if (shadows != null) {
+                    shadows.forEach {
+                        it.updateAlpha(defaultAlpha)
+                    }
                     addAll(shadows)
                 }
             }
@@ -194,6 +205,7 @@ class ShadowLayout : FrameLayout {
 
         } finally {
             a.recycle()
+            isInit = true
         }
     }
 
@@ -396,5 +408,21 @@ class ShadowLayout : FrameLayout {
     fun updateGradientOffsetY(offset: Float) {
         gradient.updateGradientOffsetY(offset)
         postInvalidate()
+    }
+
+    override fun setAlpha(alpha: Float) {
+
+        if (!isInit)
+            return
+
+        backgroundShadowList.forEach {
+            it.updateAlpha(alpha)
+        }
+
+        background.updateAlpha(alpha)
+
+        foregroundShadowList.forEach {
+            it.updateAlpha(alpha)
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.sonsation.library.effet
 
 import android.graphics.*
+import com.sonsation.library.utils.Util
 import com.sonsation.library.utils.ViewHelper
 
 class Shadow : Effect {
@@ -12,6 +13,8 @@ class Shadow : Effect {
     override var offsetTop = 0f
     override var offsetRight = 0f
     override var offsetBottom = 0f
+
+    override var alpha = 0f
 
     var isBackgroundShadow = true
     private val isEnable: Boolean
@@ -53,6 +56,10 @@ class Shadow : Effect {
             isAntiAlias = true
             color = shadowColor
 
+            if (Util.onSetAlphaFromColor(this@Shadow.alpha, shadowColor)) {
+                alpha = Util.getIntAlpha(this@Shadow.alpha)
+            }
+
             style = if (shadowType == ViewHelper.FILL_SHADOW) {
                 Paint.Style.FILL_AND_STROKE
             } else {
@@ -84,6 +91,11 @@ class Shadow : Effect {
 
             close()
         }
+    }
+
+    override fun updateAlpha(alpha: Float) {
+        this.alpha = alpha
+        updatePaint()
     }
 
     fun getShadowColor(): Int = shadowColor

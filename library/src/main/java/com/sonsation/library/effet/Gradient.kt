@@ -13,6 +13,8 @@ class Gradient : Effect {
     override var offsetRight = 0f
     override var offsetBottom = 0f
 
+    override var alpha = 0f
+
     val isEnable: Boolean
         get() = gradientStartColor != ViewHelper.NOT_SET_COLOR && gradientEndColor != ViewHelper.NOT_SET_COLOR && gradientAngle != -1
     private var gradientStartColor = ViewHelper.NOT_SET_COLOR
@@ -69,6 +71,10 @@ class Gradient : Effect {
             return
 
         canvas?.drawPath(path, paint)
+    }
+
+    override fun updateAlpha(alpha: Float) {
+
     }
 
     fun getGradientShader(): LinearGradient {
