@@ -420,6 +420,8 @@ class ShadowLayout : FrameLayout {
         if (!isInit)
             return
 
+        defaultAlpha = alpha
+
         backgroundShadowList.forEach {
             it.updateAlpha(alpha)
         }
@@ -435,5 +437,9 @@ class ShadowLayout : FrameLayout {
         for (i in 0 until childCount) {
             getChildAt(i)?.alpha = alpha
         }
+    }
+
+    override fun getAlpha(): Float {
+        return defaultAlpha
     }
 }
