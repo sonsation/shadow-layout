@@ -114,6 +114,8 @@ class ShadowLayout : FrameLayout {
                     bottomRightRadius =
                         a.getDimension(R.styleable.ShadowLayout_background_bottom_right_radius, 0f)
                 }
+
+                smoothCorner = a.getBoolean(R.styleable.ShadowLayout_smooth_corner, false)
             }
 
             backgroundShadowList.apply {

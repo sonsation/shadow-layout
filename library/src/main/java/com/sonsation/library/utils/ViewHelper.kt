@@ -31,6 +31,10 @@ class ViewHelper(private val context: Context) {
         if (canvas == null)
             return
 
+        if (radiusInfo?.smoothCorner == true) {
+            radiusInfo?.setSmoothCorner(canvas!!.height)
+        }
+
         updateOffset(effect)
         effect.updatePath(radiusInfo)
         effect.drawEffect(canvas)
