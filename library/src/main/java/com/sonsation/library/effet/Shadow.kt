@@ -70,7 +70,8 @@ class Shadow : Effect {
                 maskFilter = if (isBackgroundShadow) {
                     BlurMaskFilter(blurSize, BlurMaskFilter.Blur.NORMAL)
                 } else {
-                    BlurMaskFilter(blurSize, BlurMaskFilter.Blur.INNER)
+                    strokeWidth = blurSize
+                    BlurMaskFilter(blurSize, BlurMaskFilter.Blur.NORMAL)
                 }
             }
         }
@@ -86,7 +87,8 @@ class Shadow : Effect {
             if (radiusInfo == null) {
                 addRect(rect, Path.Direction.CW)
             } else {
-                addRoundRect(rect, radiusInfo.getRadiusArray(), Path.Direction.CW)
+                val height = (offsetBottom - offsetTop).toInt()
+                addRoundRect(rect, radiusInfo.getRadiusArray(height), Path.Direction.CW)
             }
 
             close()

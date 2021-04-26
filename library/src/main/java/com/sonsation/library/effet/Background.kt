@@ -38,7 +38,8 @@ class Background : Effect {
 
     override fun updatePaint() {
 
-        if (strokeInfo != null && strokeInfo!!.isEnable) {
+        if (strokeInfo?.isEnable == true) {
+
             strokePaint.apply {
                 isAntiAlias = true
                 style = Paint.Style.STROKE
@@ -49,8 +50,8 @@ class Background : Effect {
                     alpha = Util.getIntAlpha(this@Background.alpha)
                 }
 
-                if (strokeInfo!!.gradient != null && strokeInfo!!.gradient!!.isEnable) {
-                    shader = strokeInfo!!.gradient!!.getGradientShader()
+                if (strokeInfo?.gradient?.isEnable == true) {
+                    shader = strokeInfo?.gradient?.getGradientShader()
                 }
             }
         }
@@ -77,7 +78,8 @@ class Background : Effect {
                 if (radiusInfo == null) {
                     addRect(rect, Path.Direction.CW)
                 } else {
-                    addRoundRect(rect, radiusInfo.getRadiusArray(), Path.Direction.CW)
+                    val height = (offsetBottom - offsetTop).toInt()
+                    addRoundRect(rect, radiusInfo.getRadiusArray(height), Path.Direction.CW)
                 }
 
                 close()
@@ -90,7 +92,8 @@ class Background : Effect {
             if (radiusInfo == null) {
                 addRect(rect, Path.Direction.CW)
             } else {
-                addRoundRect(rect, radiusInfo.getRadiusArray(), Path.Direction.CW)
+                val height = (offsetBottom - offsetTop).toInt()
+                addRoundRect(rect, radiusInfo.getRadiusArray(height), Path.Direction.CW)
             }
 
             close()

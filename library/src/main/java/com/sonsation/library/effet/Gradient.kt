@@ -58,7 +58,8 @@ class Gradient : Effect {
             if (radiusInfo == null) {
                 addRect(rect, Path.Direction.CW)
             } else {
-                addRoundRect(rect, radiusInfo.getRadiusArray(), Path.Direction.CW)
+                val height = (offsetBottom - offsetTop).toInt()
+                addRoundRect(rect, radiusInfo.getRadiusArray(height), Path.Direction.CW)
             }
 
             close()

@@ -31,9 +31,6 @@ class ViewHelper(private val context: Context) {
         if (canvas == null)
             return
 
-        if (radiusInfo?.smoothCorner == true) {
-            radiusInfo?.setSmoothCorner(canvas!!.height)
-        }
 
         updateOffset(effect)
         effect.updatePath(radiusInfo)
@@ -52,7 +49,23 @@ class ViewHelper(private val context: Context) {
 
                     effect.updateOffset(dx, dy, canvas!!.width + dx, canvas!!.height + dy)
                 } else {
-                    effect.updateOffset(0f, 0f, canvas!!.width.toFloat(), canvas!!.height.toFloat())
+
+                    val dx = effect.getShadowOffsetX() + effect.getShadowBlurSize()
+                    val dy = effect.getShadowOffsetY() + effect.getShadowBlurSize()
+
+                    val right = if (dx == 0f) {
+                        canvas!!.width.toFloat()
+                    } else {
+                        canvas!!.width.toFloat() - dx
+                    }
+
+                    val bottom = if (dy == 0f) {
+                        canvas!!.height.toFloat() - dy
+                    } else {
+                        canvas!!.height.toFloat()
+                    }
+
+                    effect.updateOffset(dx, dy, right, bottom)
                 }
             }
             is Background -> {
