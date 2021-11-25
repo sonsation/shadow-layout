@@ -28,6 +28,10 @@ class ShadowContentsLayout : FrameLayout {
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
+        if (radius != null) {
+            return
+        }
+
         val rect = RectF(0f, 0f, measuredWidth.toFloat(), measuredHeight.toFloat())
 
         path.apply {
