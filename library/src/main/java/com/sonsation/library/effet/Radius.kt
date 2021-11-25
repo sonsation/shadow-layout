@@ -77,4 +77,39 @@ class Radius {
                 targetBottomLeftRadius
         )
     }
+
+    fun getRadiusArray(): FloatArray {
+
+        if (radius != 0f) {
+
+            val targetRadius = radius * radiusWeight
+
+            return floatArrayOf(
+                targetRadius,
+                targetRadius,
+                targetRadius,
+                targetRadius,
+                targetRadius,
+                targetRadius,
+                targetRadius,
+                targetRadius
+            )
+        }
+
+        val targetTopLeftRadius = topLeftRadius * radiusWeight
+        val targetTopRightRadius = topRightRadius * radiusWeight
+        val targetBottomLeftRadius = bottomLeftRadius * radiusWeight
+        val targetBottomRightRadius = bottomRightRadius * radiusWeight
+
+        return floatArrayOf(
+            targetTopLeftRadius,
+            targetTopLeftRadius,
+            targetTopRightRadius,
+            targetTopRightRadius,
+            targetBottomRightRadius,
+            targetBottomRightRadius,
+            targetBottomLeftRadius,
+            targetBottomLeftRadius
+        )
+    }
 }

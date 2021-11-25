@@ -5,7 +5,10 @@ import android.graphics.*
 import android.os.Build
 import android.util.AttributeSet
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.TextView
 import com.sonsation.library.effet.*
 import com.sonsation.library.utils.ViewHelper
 
@@ -14,9 +17,18 @@ class ShadowLayout : FrameLayout {
     private val viewHelper by lazy { ViewHelper(context) }
     private val background by lazy { Background() }
     private val gradient by lazy { Gradient() }
-
     private val backgroundShadowList by lazy { mutableListOf<Shadow>() }
     private val foregroundShadowList by lazy { mutableListOf<Shadow>() }
+    private val contentsView by lazy {
+        ShadowContentsLayout(context).apply {
+            layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        }
+    }
+    private var clipOutLine = false
+
+    init {
+        addView(contentsView)
+    }
 
     private var isInit = false
     private var defaultAlpha = 0f
@@ -49,6 +61,7 @@ class ShadowLayout : FrameLayout {
 
         try {
 
+            clipOutLine = a.getBoolean(R.styleable.ShadowLayout_clipToOutline, false)
             defaultAlpha = a.getFloat(R.styleable.ShadowLayout_android_alpha, 1f)
 
             setBackgroundResource(android.R.color.transparent)
@@ -205,7 +218,6 @@ class ShadowLayout : FrameLayout {
                 gradientAngle, gradientStartColor, gradientCenterColor, gradientEndColor,
                 gradientOffsetX, gradientOffsetY
             )
-
         } finally {
             a.recycle()
             isInit = true
@@ -229,6 +241,10 @@ class ShadowLayout : FrameLayout {
 
         foregroundShadowList.forEach {
             viewHelper.drawEffect(it)
+        }
+
+        if (viewHelper.radiusInfo != null && clipOutLine) {
+            contentsView.setRadius(viewHelper.radiusInfo!!)
         }
     }
 
@@ -444,5 +460,45 @@ class ShadowLayout : FrameLayout {
 
     override fun getAlpha(): Float {
         return defaultAlpha
+    }
+
+    override fun addView(child: View?) {
+        if (childCount == 0) {
+            super.addView(child)
+        } else {
+            contentsView.addView(child)
+        }
+    }
+
+    override fun addView(child: View?, index: Int) {
+        if (childCount == 0) {
+            super.addView(child, index)
+        } else {
+            contentsView.addView(child, index)
+        }
+    }
+
+    override fun addView(child: View?, width: Int, height: Int) {
+        if (childCount == 0) {
+            super.addView(child, width, height)
+        } else {
+            contentsView.addView(child, width, height)
+        }
+    }
+
+    override fun addView(child: View?, params: ViewGroup.LayoutParams?) {
+        if (childCount == 0) {
+            super.addView(child, params)
+        } else {
+            contentsView.addView(child, params)
+        }
+    }
+
+    override fun addView(child: View?, index: Int, params: ViewGroup.LayoutParams?) {
+        if (childCount == 0) {
+            super.addView(child, index, params)
+        } else {
+            contentsView.addView(child, index, params)
+        }
     }
 }

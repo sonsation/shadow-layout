@@ -10,7 +10,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        findViewById<SeekBar>(R.id.seek_bar).min = 0
+        /*findViewById<SeekBar>(R.id.seek_bar).min = 0
         findViewById<SeekBar>(R.id.seek_bar).max = 255
         findViewById<SeekBar>(R.id.seek_bar).setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -24,6 +24,6 @@ class MainActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
 
             }
-        })
+        })*/
     }
 }

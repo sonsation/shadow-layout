@@ -31,7 +31,6 @@ class ViewHelper(private val context: Context) {
         if (canvas == null)
             return
 
-
         updateOffset(effect)
         effect.updatePath(radiusInfo)
         effect.drawEffect(canvas)
