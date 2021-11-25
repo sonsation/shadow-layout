@@ -28,7 +28,7 @@ class ShadowContentsLayout : FrameLayout {
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
-        if (radius != null) {
+        if (radius == null) {
             return
         }
 
