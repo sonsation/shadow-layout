@@ -137,4 +137,8 @@ class Background : Effect {
         strokeInfo!!.strokeColor = color
         updatePaint()
     }
+
+    fun getStrokeInfo(): Stroke? {
+        return null
+    }
 }

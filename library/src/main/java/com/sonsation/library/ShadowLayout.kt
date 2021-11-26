@@ -246,6 +246,13 @@ class ShadowLayout : FrameLayout {
         if (viewHelper.radiusInfo != null && clipOutLine) {
             contentsView.setRadius(viewHelper.radiusInfo!!)
         }
+
+        with(background.getStrokeInfo()) {
+
+            if (this != null) {
+                contentsView.setStrokePadding(strokeWidth.toInt())
+            }
+        }
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -500,5 +507,9 @@ class ShadowLayout : FrameLayout {
         } else {
             contentsView.addView(child, index, params)
         }
+    }
+
+    fun getContentsLayout(): ShadowContentsLayout {
+        return contentsView
     }
 }

@@ -21,7 +21,8 @@ class ShadowContentsLayout : FrameLayout {
     )
 
     init {
-        clipChildren = true
+        clipChildren = false
+        clipToPadding = false
         setWillNotDraw(false)
     }
 
@@ -46,5 +47,9 @@ class ShadowContentsLayout : FrameLayout {
     fun setRadius(radius: Radius) {
         this.radius = radius
         postInvalidate()
+    }
+
+    fun setStrokePadding(padding: Int) {
+        setPadding(padding, padding, padding, padding)
     }
 }
