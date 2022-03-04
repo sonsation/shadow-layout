@@ -61,6 +61,12 @@ class ShadowLayout : FrameLayout {
 
         try {
 
+            val contentsClipToPadding = a.getBoolean(R.styleable.ShadowLayout_contents_clip_to_padding, true)
+            val contentsClipChildren = a.getBoolean(R.styleable.ShadowLayout_contents_clip_children, true)
+
+            contentsView.clipToPadding = contentsClipToPadding
+            contentsView.clipChildren = contentsClipChildren
+
             clipOutLine = a.getBoolean(R.styleable.ShadowLayout_clipToOutline, false)
             defaultAlpha = a.getFloat(R.styleable.ShadowLayout_android_alpha, 1f)
 
@@ -439,6 +445,14 @@ class ShadowLayout : FrameLayout {
     fun updateGradientOffsetY(offset: Float) {
         gradient.updateGradientOffsetY(offset)
         postInvalidate()
+    }
+
+    fun updateContentsClipToPadding(value: Boolean) {
+        contentsView.clipToPadding = value
+    }
+
+    fun updateContentsClipChildren(value: Boolean) {
+        contentsView.clipChildren = value
     }
 
     override fun setAlpha(alpha: Float) {
