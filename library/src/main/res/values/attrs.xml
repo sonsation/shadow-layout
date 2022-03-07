@@ -42,7 +42,5 @@
         <attr name="gradient_margin" format="dimension"/>
 
         <attr name="smooth_corner" format="boolean" />
-        <attr name="contents_clip_to_padding" format="boolean" />
-        <attr name="contents_clip_children" format="boolean" />
     </declare-styleable>
 </resources>
