@@ -441,6 +441,29 @@ class ShadowLayout : FrameLayout {
         postInvalidate()
     }
 
+    fun updateSmoothCornerStatus(enable: Boolean) {
+
+        if (viewHelper.radiusInfo == null) {
+            return
+        }
+
+        viewHelper.radiusInfo!!.smoothCorner = enable
+
+        postInvalidate()
+    }
+
+    fun getGradientInfo(): Gradient {
+        return gradient
+    }
+
+    fun getRadiusInfo(): Radius? {
+        return viewHelper.radiusInfo
+    }
+
+    fun getStrokeInfo(): Stroke? {
+        return viewHelper.strokeInfo
+    }
+
     override fun setAlpha(alpha: Float) {
 
         if (!isInit)
