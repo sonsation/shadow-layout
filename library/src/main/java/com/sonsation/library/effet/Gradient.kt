@@ -16,21 +16,35 @@ class Gradient : Effect {
     override var alpha = 0f
 
     val isEnable: Boolean
-        get() = gradientStartColor != ViewHelper.NOT_SET_COLOR && gradientEndColor != ViewHelper.NOT_SET_COLOR && gradientAngle != -1
+        get() = ((gradientStartColor != ViewHelper.NOT_SET_COLOR && gradientEndColor != ViewHelper.NOT_SET_COLOR)
+                || (gradientArray != null && gradientArray?.isNotEmpty() == true)) && gradientAngle != -1
     private var gradientStartColor = ViewHelper.NOT_SET_COLOR
     private var gradientCenterColor = ViewHelper.NOT_SET_COLOR
     private var gradientEndColor = ViewHelper.NOT_SET_COLOR
     private var gradientAngle = 0
     private var gradientOffsetX = 0f
     private var gradientOffsetY = 0f
+    private var gradientArray: IntArray? = null
+    private var gradientPositions: FloatArray? = null
 
-    fun init(angle: Int, startColor: Int, centerColor: Int, endColor: Int, offsetX: Float, offsetY: Float) {
+    fun init(
+        angle: Int,
+        startColor: Int,
+        centerColor: Int,
+        endColor: Int,
+        offsetX: Float,
+        offsetY: Float,
+        gradientArray: IntArray?,
+        gradientPositions: FloatArray?
+    ) {
         this.gradientAngle = angle
         this.gradientStartColor = startColor
         this.gradientCenterColor = centerColor
         this.gradientEndColor = endColor
         this.gradientOffsetX = offsetX
         this.gradientOffsetY = offsetY
+        this.gradientArray = gradientArray
+        this.gradientPositions = gradientPositions
 
         updatePaint()
     }
@@ -80,10 +94,14 @@ class Gradient : Effect {
 
     fun getGradientShader(): LinearGradient {
 
-        val colors = if (gradientCenterColor == ViewHelper.NOT_SET_COLOR) {
-            intArrayOf(gradientStartColor, gradientEndColor)
+        val colors = if (gradientArray != null && gradientArray?.isNotEmpty() == true) {
+            gradientArray!!
         } else {
-            intArrayOf(gradientStartColor, gradientCenterColor, gradientEndColor)
+            if (gradientCenterColor == ViewHelper.NOT_SET_COLOR) {
+                intArrayOf(gradientStartColor, gradientEndColor)
+            } else {
+                intArrayOf(gradientStartColor, gradientCenterColor, gradientEndColor)
+            }
         }
 
         var realAngle = 0
@@ -101,39 +119,39 @@ class Gradient : Effect {
         return when (trueAngle / 45) {
             0 -> {
                 val x = offsetRight + gradientOffsetX
-                LinearGradient(x, 0f, offsetLeft, 0f, colors, null, Shader.TileMode.CLAMP)
+                LinearGradient(x, 0f, offsetLeft, 0f, colors, gradientPositions, Shader.TileMode.CLAMP)
             }
             1 -> {
                 val x = offsetRight + gradientOffsetX
                 val y = offsetTop + gradientOffsetY
-                LinearGradient(x, offsetTop, offsetLeft, y, colors, null, Shader.TileMode.CLAMP)
+                LinearGradient(x, offsetTop, offsetLeft, y, colors, gradientPositions, Shader.TileMode.CLAMP)
             }
             2 -> {
                 val y = offsetTop + gradientOffsetY
-                LinearGradient(0f, y, 0f, offsetBottom, colors, null, Shader.TileMode.CLAMP)
+                LinearGradient(0f, y, 0f, offsetBottom, colors, gradientPositions, Shader.TileMode.CLAMP)
             }
             3 -> {
                 val x = width + gradientOffsetX
                 val y = (height * 2) + gradientOffsetY
-                LinearGradient(0f, y, x, offsetBottom, colors, null, Shader.TileMode.CLAMP)
+                LinearGradient(0f, y, x, offsetBottom, colors, gradientPositions, Shader.TileMode.CLAMP)
             }
             4 -> {
                 val y = offsetBottom + gradientOffsetY
-                LinearGradient(0f, y, 0f, 0f, colors, null, Shader.TileMode.CLAMP)
+                LinearGradient(0f, y, 0f, 0f, colors, gradientPositions, Shader.TileMode.CLAMP)
             }
             5 -> {
                 val x = offsetRight + gradientOffsetX
                 val y = offsetTop + gradientOffsetY
-                LinearGradient(0f, y, x, offsetTop, colors, null, Shader.TileMode.CLAMP)
+                LinearGradient(0f, y, x, offsetTop, colors, gradientPositions, Shader.TileMode.CLAMP)
             }
             6 -> {
                 val x = offsetTop + gradientOffsetX
-                LinearGradient(x, 0f, offsetRight, 0f, colors, null, Shader.TileMode.CLAMP)
+                LinearGradient(x, 0f, offsetRight, 0f, colors, gradientPositions, Shader.TileMode.CLAMP)
             }
             else -> {
                 val x = offsetRight + gradientOffsetX
                 val y = offsetTop + gradientOffsetY
-                LinearGradient(0f, y, x, offsetBottom, colors, null, Shader.TileMode.CLAMP)
+                LinearGradient(0f, y, x, offsetBottom, colors, gradientPositions, Shader.TileMode.CLAMP)
             }
         }
     }

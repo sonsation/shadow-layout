@@ -77,6 +77,56 @@ class ViewHelper(private val context: Context) {
         }
     }
 
+    fun parseGradientArray(arrays: String?): List<Int>? {
+
+        if (arrays.isNullOrEmpty())
+            return null
+
+        val list = mutableListOf<Int>()
+
+        val split = arrays.split(",").map {
+            val text = it
+            text.trim()
+        }
+
+
+        if (split.isEmpty())
+            return null
+
+        split.map { it.trim() }
+
+        split.forEach {
+            list.add(Color.parseColor(it))
+        }
+
+        return list
+    }
+
+    fun parseGradientPositions(arrays: String?): List<Float>? {
+
+        if (arrays.isNullOrEmpty())
+            return null
+
+        val list = mutableListOf<Float>()
+
+        val split = arrays.split(",").map {
+            val text = it
+            text.trim()
+        }
+
+
+        if (split.isEmpty())
+            return null
+
+        split.map { it.trim() }
+
+        split.forEach {
+            list.add(it.toFloat())
+        }
+
+        return list
+    }
+
     fun parseShadowArray(isBackground: Boolean, arrays: String?): List<Shadow>? {
 
         if (arrays.isNullOrEmpty())
