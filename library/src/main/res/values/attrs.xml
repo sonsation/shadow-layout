@@ -40,6 +40,8 @@
         <attr name="gradient_offset_x" format="dimension"/>
         <attr name="gradient_offset_y" format="dimension"/>
         <attr name="gradient_margin" format="dimension"/>
+        <attr name="gradient_array" format="string"/>
+        <attr name="gradient_positions" format="string"/>
 
         <attr name="smooth_corner" format="boolean" />
     </declare-styleable>

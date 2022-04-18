@@ -104,9 +104,12 @@ class ShadowLayout : FrameLayout {
                         a.getDimension(R.styleable.ShadowLayout_stroke_gradient_offset_y, 0f)
                     val gradientAngle = a.getInt(R.styleable.ShadowLayout_stroke_gradient_angle, -1)
 
+                    val gradients = viewHelper.parseGradientArray(a.getString(R.styleable.ShadowLayout_gradient_array))
+                    val gradientPositions = viewHelper.parseGradientPositions(a.getString(R.styleable.ShadowLayout_gradient_positions))
+
                     init(
                         gradientAngle, gradientStartColor, gradientCenterColor, gradientEndColor,
-                        gradientOffsetX, gradientOffsetY
+                        gradientOffsetX, gradientOffsetY, gradients?.toIntArray(), gradientPositions?.toFloatArray()
                     )
                 }
             }
@@ -214,9 +217,12 @@ class ShadowLayout : FrameLayout {
             val gradientOffsetY = a.getDimension(R.styleable.ShadowLayout_gradient_offset_y, 0f)
             val gradientAngle = a.getInt(R.styleable.ShadowLayout_gradient_angle, -1)
 
+            val gradients = viewHelper.parseGradientArray(a.getString(R.styleable.ShadowLayout_gradient_array))
+            val gradientPositions = viewHelper.parseGradientPositions(a.getString(R.styleable.ShadowLayout_gradient_positions))
+
             gradient.init(
                 gradientAngle, gradientStartColor, gradientCenterColor, gradientEndColor,
-                gradientOffsetX, gradientOffsetY
+                gradientOffsetX, gradientOffsetY, gradients?.toIntArray(), gradientPositions?.toFloatArray()
             )
         } finally {
             a.recycle()
