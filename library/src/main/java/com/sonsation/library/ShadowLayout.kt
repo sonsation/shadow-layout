@@ -437,6 +437,11 @@ class ShadowLayout : FrameLayout {
         postInvalidate()
     }
 
+    fun updateLocalMatrix(matrix: Matrix?) {
+        gradient.updateLocalMatrix(matrix)
+        postInvalidate()
+    }
+
     fun updateGradientOffsetX(offset: Float) {
         gradient.updateGradientOffsetX(offset)
         postInvalidate()

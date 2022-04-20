@@ -26,6 +26,7 @@ class Gradient : Effect {
     private var gradientOffsetY = 0f
     private var gradientArray: IntArray? = null
     private var gradientPositions: FloatArray? = null
+    private var localMatrix: Matrix? = null
 
     fun init(
         angle: Int,
@@ -60,6 +61,10 @@ class Gradient : Effect {
         paint.apply {
             isAntiAlias = true
             shader = getGradientShader()
+
+            if (localMatrix != null) {
+                shader.setLocalMatrix(localMatrix)
+            }
         }
     }
 
@@ -180,6 +185,11 @@ class Gradient : Effect {
 
     fun updateGradientOffsetY(offset: Float) {
         this.gradientOffsetY = offset
+        updatePaint()
+    }
+
+    fun updateLocalMatrix(matrix: Matrix?) {
+        this.localMatrix = matrix
         updatePaint()
     }
 }
