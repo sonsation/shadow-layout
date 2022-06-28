@@ -46,7 +46,7 @@ class ShadowContentsLayout : FrameLayout {
 
     fun setRadius(radius: Radius) {
         this.radius = radius
-        postInvalidate()
+        invalidate()
     }
 
     fun setStrokePadding(padding: Int) {
