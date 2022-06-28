@@ -277,7 +277,7 @@ class ShadowLayout : FrameLayout {
 
     fun updateBackgroundColor(color: Int) {
         background.setBackgroundColor(color)
-        postInvalidate()
+        invalidate()
     }
 
     fun updateRadius(radius: Float) {
@@ -287,7 +287,7 @@ class ShadowLayout : FrameLayout {
         }
 
         viewHelper.radiusInfo!!.updateRadius(radius)
-        postInvalidate()
+        invalidate()
     }
 
     fun updateRadius(topLeft: Float, topRight: Float, bottomLeft: Float, bottomRight: Float) {
@@ -296,7 +296,7 @@ class ShadowLayout : FrameLayout {
         }
 
         viewHelper.radiusInfo!!.updateRadius(topLeft, topRight, bottomLeft, bottomRight)
-        postInvalidate()
+        invalidate()
     }
 
     fun addBackgroundShadow(blurSize: Float, offsetX: Float, offsetY: Float, shadowColor: Int) {
@@ -304,32 +304,32 @@ class ShadowLayout : FrameLayout {
             init(true, blurSize, offsetX, offsetY, shadowColor)
         }
         backgroundShadowList.add(shadow)
-        postInvalidate()
+        invalidate()
     }
 
     fun removeBackgroundShadowLast() {
         backgroundShadowList.removeLastOrNull()
-        postInvalidate()
+        invalidate()
     }
 
     fun removeBackgroundShadowFirst() {
         backgroundShadowList.removeFirstOrNull()
-        postInvalidate()
+        invalidate()
     }
 
     fun removeAllBackgroundShadows() {
         backgroundShadowList.clear()
-        postInvalidate()
+        invalidate()
     }
 
     fun removeBackgroundShadow(position: Int) {
         backgroundShadowList.removeAt(position)
-        postInvalidate()
+        invalidate()
     }
 
     fun updateBackgroundShadow(position: Int, shadow: Shadow) {
         backgroundShadowList[position] = shadow
-        postInvalidate()
+        invalidate()
     }
 
     fun updateBackgroundShadow(
@@ -340,7 +340,7 @@ class ShadowLayout : FrameLayout {
         color: Int
     ) {
         backgroundShadowList[position].init(true, blurSize, offsetX, offsetY, color)
-        postInvalidate()
+        invalidate()
     }
 
     fun updateBackgroundShadow(shadow: Shadow) {
@@ -360,27 +360,27 @@ class ShadowLayout : FrameLayout {
             init(true, blurSize, 0f, 0f, shadowColor)
         }
         backgroundShadowList.add(shadow)
-        postInvalidate()
+        invalidate()
     }
 
     fun removeForegroundShadowLast() {
         backgroundShadowList.removeLastOrNull()
-        postInvalidate()
+        invalidate()
     }
 
     fun removeForegroundShadowFirst() {
         backgroundShadowList.removeFirstOrNull()
-        postInvalidate()
+        invalidate()
     }
 
     fun removeAllForegroundShadows() {
         backgroundShadowList.clear()
-        postInvalidate()
+        invalidate()
     }
 
     fun removeForegroundShadow(position: Int) {
         backgroundShadowList.removeAt(position)
-        postInvalidate()
+        invalidate()
     }
 
     fun updateForegroundShadow(position: Int, shadow: Shadow) {
@@ -388,12 +388,12 @@ class ShadowLayout : FrameLayout {
             updateShadowOffsetX(0f)
             updateShadowOffsetY(0f)
         }
-        postInvalidate()
+        invalidate()
     }
 
     fun updateForegroundShadow(position: Int, blurSize: Float, color: Int) {
         backgroundShadowList[position].init(false, blurSize, 0f, 0f, color)
-        postInvalidate()
+        invalidate()
     }
 
     fun updateForegroundShadow(shadow: Shadow) {
@@ -414,42 +414,42 @@ class ShadowLayout : FrameLayout {
 
     fun updateStrokeWidth(strokeWidth: Float) {
         background.updateStrokeWidth(strokeWidth)
-        postInvalidate()
+        invalidate()
     }
 
     fun updateStrokeColor(color: Int) {
         background.updateStrokeColor(color)
-        postInvalidate()
+        invalidate()
     }
 
     fun updateGradientColor(startColor: Int, centerColor: Int, endColor: Int) {
         gradient.updateGradientColor(startColor, centerColor, endColor)
-        postInvalidate()
+        invalidate()
     }
 
     fun updateGradientColor(startColor: Int, endColor: Int) {
         gradient.updateGradientColor(startColor, endColor)
-        postInvalidate()
+        invalidate()
     }
 
     fun updateGradientAngle(angle: Int) {
         gradient.updateGradientAngle(angle)
-        postInvalidate()
+        invalidate()
     }
 
     fun updateLocalMatrix(matrix: Matrix?) {
         gradient.updateLocalMatrix(matrix)
-        postInvalidate()
+        invalidate()
     }
 
     fun updateGradientOffsetX(offset: Float) {
         gradient.updateGradientOffsetX(offset)
-        postInvalidate()
+        invalidate()
     }
 
     fun updateGradientOffsetY(offset: Float) {
         gradient.updateGradientOffsetY(offset)
-        postInvalidate()
+        invalidate()
     }
 
     fun updateSmoothCornerStatus(enable: Boolean) {
@@ -460,7 +460,7 @@ class ShadowLayout : FrameLayout {
 
         viewHelper.radiusInfo!!.smoothCorner = enable
 
-        postInvalidate()
+        invalidate()
     }
 
     fun getGradientInfo(): Gradient {
@@ -492,7 +492,7 @@ class ShadowLayout : FrameLayout {
             it.updateAlpha(alpha)
         }
 
-        postInvalidate()
+        invalidate()
 
         for (i in 0 until childCount) {
             getChildAt(i)?.alpha = alpha
