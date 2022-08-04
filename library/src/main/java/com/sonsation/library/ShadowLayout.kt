@@ -57,6 +57,7 @@ class ShadowLayout : FrameLayout {
         }
 
         if (attributeSet != null) {
+            initAttrsLayout(context, attributeSet, defStyle)
             return
         }
     }
