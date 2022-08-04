@@ -33,7 +33,9 @@ class ShadowLayout : FrameLayout {
     private var isInit = false
     private var defaultAlpha = 0f
 
-    constructor(context: Context) : super(context)
+    constructor(context: Context) : super(context) {
+        init(context, null, 0)
+    }
     constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet) {
         init(context, attributeSet, 0)
     }
@@ -46,12 +48,16 @@ class ShadowLayout : FrameLayout {
         init(context, attributeSet, defStyleAttr)
     }
 
-    private fun init(context: Context, attributeSet: AttributeSet, defStyle: Int) {
-        initAttrsLayout(context, attributeSet, defStyle)
+    private fun init(context: Context, attributeSet: AttributeSet?, defStyle: Int) {
+
         setWillNotDraw(false)
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
             setLayerType(LAYER_TYPE_SOFTWARE, null)
+        }
+
+        if (attributeSet != null) {
+            return
         }
     }
 
