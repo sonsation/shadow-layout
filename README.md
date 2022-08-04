@@ -1,3 +1,6 @@
+[![](https://jitpack.io/v/sonsation/shadow-layout.svg)](https://jitpack.io/#sonsation/shadow-layout)
+
+
 Add it to your build.gradle with:
 ```gradle
 allprojects {
