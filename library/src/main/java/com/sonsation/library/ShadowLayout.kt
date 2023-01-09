@@ -238,10 +238,10 @@ class ShadowLayout : FrameLayout {
     }
 
     override fun onDraw(canvas: Canvas?) {
+        super.onDraw(canvas)
 
-        if (canvas == null) {
+        if (canvas == null)
             return
-        }
 
         viewHelper.updateCanvas(canvas)
 
@@ -266,18 +266,17 @@ class ShadowLayout : FrameLayout {
                 contentsView.setStrokePadding(strokeWidth.toInt())
             }
         }
-
-        super.onDraw(canvas)
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        super.onLayout(changed, left, top, right, bottom)
 
         updatePadding()
 
         for (i in 0 until childCount) {
             getChildAt(i)?.alpha = defaultAlpha
         }
+
+        super.onLayout(changed, left, top, right, bottom)
     }
 
     private fun updatePadding() {
