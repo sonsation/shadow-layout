@@ -27,7 +27,6 @@ class ShadowContentsLayout : FrameLayout {
     }
 
     override fun onDraw(canvas: Canvas?) {
-        super.onDraw(canvas)
 
         if (radius == null) {
             return
@@ -42,6 +41,8 @@ class ShadowContentsLayout : FrameLayout {
         }
 
         canvas?.clipPath(path)
+
+        super.onDraw(canvas)
     }
 
     fun setRadius(radius: Radius) {
