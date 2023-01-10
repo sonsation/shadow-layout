@@ -11,6 +11,7 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import com.sonsation.library.effet.*
 import com.sonsation.library.utils.ViewHelper
+import kotlin.math.abs
 
 class ShadowLayout : FrameLayout {
 
@@ -255,14 +256,32 @@ class ShadowLayout : FrameLayout {
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
 
         updatePadding()
+
+        val width = abs(right - left)
+        val height = abs(bottom - top)
+
+        with (viewHelper) {
+
+            updateCanvas(canvas)
+
+            backgroundShadowList.forEach {
+                updateOffset(it, width, height)
+            }
+
+            updateOffset(background, width, height)
+            updateOffset(gradient, width, height)
+
+            foregroundShadowList.forEach {
+                updateOffset(it, width, height)
+            }
+        }
 
         for (i in 0 until childCount) {
             getChildAt(i)?.alpha = defaultAlpha
         }
-
-        super.onLayout(changed, left, top, right, bottom)
     }
 
     private fun updatePadding() {
