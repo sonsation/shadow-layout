@@ -24,15 +24,15 @@ class ViewHelper(private val context: Context) {
 
     fun drawEffect(effect: Effect) {
 
-        if (canvas == null)
+        if (canvas == null) {
             return
+        }
 
-        updateOffset(effect)
         effect.updatePath(radiusInfo)
         effect.drawEffect(canvas)
     }
 
-    private fun updateOffset(effect: Effect) {
+    fun updateOffset(effect: Effect, width: Int, height: Int) {
 
         when (effect) {
             is Shadow -> {
@@ -42,32 +42,32 @@ class ViewHelper(private val context: Context) {
                     val dx = effect.getShadowOffsetX()
                     val dy = effect.getShadowOffsetY()
 
-                    effect.updateOffset(dx, dy, canvas!!.width + dx, canvas!!.height + dy)
+                    effect.updateOffset(dx, dy, width + dx, height + dy)
                 } else {
 
                     val dx = effect.getShadowOffsetX() + effect.getShadowBlurSize()
                     val dy = effect.getShadowOffsetY() + effect.getShadowBlurSize()
 
                     val right = if (dx == 0f) {
-                        canvas!!.width.toFloat()
+                        width.toFloat()
                     } else {
-                        canvas!!.width.toFloat() - dx
+                        width.toFloat() - dx
                     }
 
                     val bottom = if (dy == 0f) {
-                        canvas!!.height.toFloat() - dy
+                        height.toFloat() - dy
                     } else {
-                        canvas!!.height.toFloat()
+                        height.toFloat()
                     }
 
                     effect.updateOffset(dx, dy, right, bottom)
                 }
             }
             is Background -> {
-                effect.updateOffset(0f, 0f, canvas!!.width.toFloat(), canvas!!.height.toFloat())
+                effect.updateOffset(0f, 0f, width.toFloat(), height.toFloat())
             }
             is Gradient -> {
-                effect.updateOffset(0f, 0f, canvas!!.width.toFloat(), canvas!!.height.toFloat())
+                effect.updateOffset(0f, 0f, width.toFloat(), height.toFloat())
                 effect.updatePaint()
             }
         }
