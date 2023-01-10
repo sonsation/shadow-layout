@@ -19,16 +19,8 @@ class ShadowLayout : FrameLayout {
     private val gradient by lazy { Gradient() }
     private val backgroundShadowList by lazy { mutableListOf<Shadow>() }
     private val foregroundShadowList by lazy { mutableListOf<Shadow>() }
-    private val contentsView by lazy {
-        ShadowContentsLayout(context).apply {
-            layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-        }
-    }
-    private var clipOutLine = false
 
-    init {
-        addView(contentsView)
-    }
+    private var clipOutLine = false
 
     private var isInit = false
     private var defaultAlpha = 0f
@@ -70,8 +62,6 @@ class ShadowLayout : FrameLayout {
 
             clipOutLine = a.getBoolean(R.styleable.ShadowLayout_clipToOutline, false)
             defaultAlpha = a.getFloat(R.styleable.ShadowLayout_android_alpha, 1f)
-
-            setBackgroundResource(android.R.color.transparent)
 
             //default background settings
             val backgroundColor = if (a.hasValue(R.styleable.ShadowLayout_background_color)) {
@@ -243,40 +233,35 @@ class ShadowLayout : FrameLayout {
         if (canvas == null)
             return
 
-        viewHelper.updateCanvas(canvas)
+        with (viewHelper) {
 
-        backgroundShadowList.forEach {
-            viewHelper.drawEffect(it)
-        }
+            updateCanvas(canvas)
 
-        viewHelper.drawEffect(background)
-        viewHelper.drawEffect(gradient)
-
-        foregroundShadowList.forEach {
-            viewHelper.drawEffect(it)
-        }
-
-        if (viewHelper.radiusInfo != null && clipOutLine) {
-            contentsView.setRadius(viewHelper.radiusInfo!!)
-        }
-
-        with(background.getStrokeInfo()) {
-
-            if (this != null) {
-                contentsView.setStrokePadding(strokeWidth.toInt())
+            backgroundShadowList.forEach {
+                drawEffect(it)
             }
+
+            drawEffect(background)
+            drawEffect(gradient)
+
+            foregroundShadowList.forEach {
+                drawEffect(it)
+            }
+        }
+
+        if (clipOutLine) {
+            canvas.clipPath(background.path)
         }
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
 
         updatePadding()
 
         for (i in 0 until childCount) {
             getChildAt(i)?.alpha = defaultAlpha
         }
-
-        super.onLayout(changed, left, top, right, bottom)
     }
 
     private fun updatePadding() {
@@ -509,49 +494,5 @@ class ShadowLayout : FrameLayout {
 
     override fun getAlpha(): Float {
         return defaultAlpha
-    }
-
-    override fun addView(child: View?) {
-        if (childCount == 0) {
-            super.addView(child)
-        } else {
-            contentsView.addView(child)
-        }
-    }
-
-    override fun addView(child: View?, index: Int) {
-        if (childCount == 0) {
-            super.addView(child, index)
-        } else {
-            contentsView.addView(child, index)
-        }
-    }
-
-    override fun addView(child: View?, width: Int, height: Int) {
-        if (childCount == 0) {
-            super.addView(child, width, height)
-        } else {
-            contentsView.addView(child, width, height)
-        }
-    }
-
-    override fun addView(child: View?, params: ViewGroup.LayoutParams?) {
-        if (childCount == 0) {
-            super.addView(child, params)
-        } else {
-            contentsView.addView(child, params)
-        }
-    }
-
-    override fun addView(child: View?, index: Int, params: ViewGroup.LayoutParams?) {
-        if (childCount == 0) {
-            super.addView(child, index, params)
-        } else {
-            contentsView.addView(child, index, params)
-        }
-    }
-
-    fun getContentsLayout(): ShadowContentsLayout {
-        return contentsView
     }
 }

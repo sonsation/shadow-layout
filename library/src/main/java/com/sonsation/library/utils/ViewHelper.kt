@@ -18,10 +18,6 @@ class ViewHelper(private val context: Context) {
         const val FILL_SHADOW = "fill"
     }
 
-    fun dpToPx(dp: Float): Float {
-        return context.resources.displayMetrics.density * dp
-    }
-
     fun updateCanvas(canvas: Canvas?) {
         this.canvas = canvas
     }
@@ -148,8 +144,10 @@ class ViewHelper(private val context: Context) {
         split.forEach {
 
             val splitArray = it.split(",")
-            if (splitArray.size != 4)
+
+            if (splitArray.size != 4) {
                 return null
+            }
 
             var blurSize: Float
             var offsetX: Float
@@ -157,9 +155,9 @@ class ViewHelper(private val context: Context) {
             var color: Int
 
             try {
-                blurSize = dpToPx(splitArray[0].toFloat())
-                offsetX = dpToPx(splitArray[1].toFloat())
-                offsetY = dpToPx(splitArray[2].toFloat())
+                blurSize = splitArray[0].toFloat().toPx()
+                offsetX = splitArray[1].toFloat().toPx()
+                offsetY = splitArray[2].toFloat().toPx()
                 color = Color.parseColor(splitArray[3])
             } catch (e: NumberFormatException) {
                 blurSize = 0f
@@ -176,5 +174,9 @@ class ViewHelper(private val context: Context) {
         }
 
         return list
+    }
+
+    fun Float.toPx(): Float {
+        return context.resources.displayMetrics.density * this
     }
 }
