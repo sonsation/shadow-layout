@@ -1,7 +1,11 @@
 package com.sonsation.shadowlayout
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.SeekBar
 import com.sonsation.library.ShadowLayout
 
@@ -25,5 +29,24 @@ class MainActivity : AppCompatActivity() {
 
             }
         })*/
+
+    }
+
+    fun loadBitmapFromView(v: View?, weight: Int? = null, height: Int? = null): Bitmap? {
+
+        if (v == null)
+            return null
+
+        val b = Bitmap.createBitmap(
+            weight ?: v.width,
+            height ?: v.height,
+            Bitmap.Config.ARGB_8888
+        )
+
+        val c = Canvas(b)
+        c.drawColor(Color.TRANSPARENT)
+        v.layout(v.left, v.top, v.right, v.bottom)
+        v.draw(c)
+        return b
     }
 }

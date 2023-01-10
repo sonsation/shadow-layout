@@ -42,16 +42,15 @@ class ShadowLayout : FrameLayout {
 
     private fun init(context: Context, attributeSet: AttributeSet?, defStyle: Int) {
 
-        setWillNotDraw(false)
-
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
             setLayerType(LAYER_TYPE_SOFTWARE, null)
         }
 
-        if (attributeSet != null) {
-            initAttrsLayout(context, attributeSet, defStyle)
+        if (attributeSet == null) {
             return
         }
+
+        initAttrsLayout(context, attributeSet, defStyle)
     }
 
     private fun initAttrsLayout(context: Context, attributeSet: AttributeSet, defStyle: Int) {
@@ -227,8 +226,7 @@ class ShadowLayout : FrameLayout {
         }
     }
 
-    override fun onDraw(canvas: Canvas?) {
-        super.onDraw(canvas)
+    override fun dispatchDraw(canvas: Canvas?) {
 
         if (canvas == null)
             return
@@ -252,16 +250,19 @@ class ShadowLayout : FrameLayout {
         if (clipOutLine) {
             canvas.clipPath(background.path)
         }
+
+        super.dispatchDraw(canvas)
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        super.onLayout(changed, left, top, right, bottom)
 
         updatePadding()
 
         for (i in 0 until childCount) {
             getChildAt(i)?.alpha = defaultAlpha
         }
+
+        super.onLayout(changed, left, top, right, bottom)
     }
 
     private fun updatePadding() {
