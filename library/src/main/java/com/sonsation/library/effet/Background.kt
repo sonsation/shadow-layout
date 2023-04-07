@@ -69,24 +69,29 @@ class Background : Effect {
 
     override fun updatePath(radiusInfo: Radius?) {
 
-        val rect = RectF(offsetLeft, offsetTop, offsetRight, offsetBottom)
+        if (strokeInfo?.isEnable == true) {
 
-        if (strokeInfo != null && strokeInfo!!.isEnable) {
+            val adjustOffset = strokeInfo!!.strokeWidth.div(2f).toInt()
+            val strokeRect = RectF(offsetLeft - adjustOffset, offsetTop - adjustOffset, offsetRight + adjustOffset, offsetBottom + adjustOffset)
+
             strokePath.apply {
                 reset()
 
                 if (radiusInfo == null) {
-                    addRect(rect, Path.Direction.CW)
+                    addRect(strokeRect, Path.Direction.CW)
                 } else {
                     val height = (offsetBottom - offsetTop).toInt()
-                    addRoundRect(rect, radiusInfo.getRadiusArray(height), Path.Direction.CW)
+                    addRoundRect(strokeRect, radiusInfo.getRadiusArray(height), Path.Direction.CW)
                 }
 
                 close()
             }
         }
 
+        val rect = RectF(offsetLeft, offsetTop, offsetRight, offsetBottom)
+
         path.apply {
+
             reset()
 
             if (radiusInfo == null) {
@@ -102,7 +107,7 @@ class Background : Effect {
 
     override fun drawEffect(canvas: Canvas?) {
 
-        if (strokeInfo != null && strokeInfo!!.isEnable) {
+        if (strokeInfo?.isEnable == true) {
             canvas?.drawPath(strokePath, strokePaint)
         }
 
