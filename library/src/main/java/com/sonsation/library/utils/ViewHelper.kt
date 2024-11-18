@@ -8,7 +8,6 @@ import java.lang.NumberFormatException
 
 class ViewHelper(private val context: Context) {
 
-    var canvas: Canvas? = null
     var radiusInfo: Radius? = null
     var strokeInfo: Stroke? = null
 
@@ -18,18 +17,9 @@ class ViewHelper(private val context: Context) {
         const val FILL_SHADOW = "fill"
     }
 
-    fun updateCanvas(canvas: Canvas?) {
-        this.canvas = canvas
-    }
-
-    fun drawEffect(effect: Effect) {
-
-        if (canvas == null) {
-            return
-        }
-
+    fun Canvas.drawEffect(effect: Effect) {
         effect.updatePath(radiusInfo)
-        effect.drawEffect(canvas)
+        effect.drawEffect(this)
     }
 
     fun updateOffset(effect: Effect, width: Int, height: Int) {
@@ -145,29 +135,30 @@ class ViewHelper(private val context: Context) {
 
             val splitArray = it.split(",")
 
-            if (splitArray.size != 4) {
-                return null
-            }
-
-            var blurSize: Float
-            var offsetX: Float
-            var offsetY: Float
-            var color: Int
-
-            try {
-                blurSize = splitArray[0].toFloat().toPx()
-                offsetX = splitArray[1].toFloat().toPx()
-                offsetY = splitArray[2].toFloat().toPx()
-                color = Color.parseColor(splitArray[3])
-            } catch (e: NumberFormatException) {
-                blurSize = 0f
-                offsetX = 0f
-                offsetY = 0f
-                color = Color.WHITE
-            }
-
             val shadow = Shadow().apply {
-                init(isBackground, blurSize, offsetX, offsetY, color)
+                if (splitArray.size == 4) {
+                    try {
+                        val blurSize = splitArray[0].toFloat().toPx()
+                        val offsetX = splitArray[1].toFloat().toPx()
+                        val offsetY = splitArray[2].toFloat().toPx()
+                        val color = Color.parseColor(splitArray[3])
+
+                        init(isBackground, blurSize, offsetX, offsetY, 0f, color)
+                    } catch (e: NumberFormatException) {
+                        init(isBackground, 0f, 0f, 0f, 0f, Color.WHITE)
+                    }
+                } else {
+                    try {
+                        val blurSize = splitArray[0].toFloat().toPx()
+                        val offsetX = splitArray[1].toFloat().toPx()
+                        val offsetY = splitArray[2].toFloat().toPx()
+                        val spread = splitArray[3].toFloat().toPx()
+                        val color = Color.parseColor(splitArray[4])
+                        init(isBackground, blurSize, offsetX, offsetY, spread, color)
+                    } catch (e: NumberFormatException) {
+                        init(isBackground, 0f, 0f, 0f, 0f, Color.WHITE)
+                    }
+                }
             }
 
             list.add(shadow)

@@ -26,10 +26,14 @@
         <attr name="shadow_offset_x" format="dimension" />
         <attr name="shadow_offset_y" format="dimension" />
         <attr name="shadow_blur" format="dimension" />
+        <attr name="shadow_spread" format="dimension" />
         <attr name="shadow_array" format="string"/>
 
         <attr name="inner_shadow_color" format="color" />
+        <attr name="inner_shadow_offset_x" format="dimension" />
+        <attr name="inner_shadow_offset_y" format="dimension" />
         <attr name="inner_shadow_blur" format="dimension" />
+        <attr name="inner_shadow_spread" format="dimension" />
         <attr name="inner_shadow_type" format="string" />
         <attr name="inner_shadow_array" format="string"/>
 

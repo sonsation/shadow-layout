@@ -18,18 +18,20 @@ class Shadow : Effect {
 
     var isBackgroundShadow = true
     private val isEnable: Boolean
-        get() = blurSize != 0f && shadowColor != ViewHelper.NOT_SET_COLOR
+        get() = (blurSize != 0f || shadowSpread != 0f) && shadowColor != ViewHelper.NOT_SET_COLOR
     private var blurSize = 0f
     private var shadowColor = ViewHelper.NOT_SET_COLOR
     private var shadowOffsetX = 0f
     private var shadowOffsetY = 0f
+    private var shadowSpread = 0f
     private var shadowType = ViewHelper.FILL_SHADOW
 
-    fun init(isBackground: Boolean, blurSize: Float, shadowOffsetX: Float, shadowOffsetY: Float, shadowColor: Int) {
+    fun init(isBackground: Boolean, blurSize: Float, shadowOffsetX: Float, shadowOffsetY: Float, shadowSpread: Float, shadowColor: Int) {
         this.isBackgroundShadow = isBackground
         this.blurSize = blurSize
         this.shadowOffsetX = shadowOffsetX
         this.shadowOffsetY = shadowOffsetY
+        this.shadowSpread = shadowSpread
         this.shadowColor = shadowColor
 
         updatePaint()
@@ -79,7 +81,11 @@ class Shadow : Effect {
 
     override fun updatePath(radiusInfo: Radius?) {
 
-        val rect = RectF(offsetLeft, offsetTop, offsetRight, offsetBottom)
+        val rect = RectF(offsetLeft + shadowOffsetX, offsetTop + shadowOffsetY, offsetRight + shadowOffsetX, offsetBottom + shadowOffsetY)
+
+        if (shadowSpread != 0f) {
+            rect.inset(-shadowSpread, -shadowSpread)
+        }
 
         path.apply {
             reset()
@@ -121,5 +127,13 @@ class Shadow : Effect {
     fun setShadowType(type: String) {
         this.shadowType = type
         updatePaint()
+    }
+
+    fun updateShadowSpread(spread: Float) {
+        this.shadowSpread = spread
+    }
+
+    fun updateShadowBlurSize(size: Float) {
+        this.blurSize = size
     }
 }
