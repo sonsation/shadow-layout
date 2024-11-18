@@ -10,6 +10,10 @@ android {
     buildToolsVersion = "34.0.0"
     compileSdk = 34
 
+    buildFeatures {
+        viewBinding true
+    }
+
     defaultConfig {
         applicationId "com.sonsation.shadowlayout"
         minSdkVersion 21

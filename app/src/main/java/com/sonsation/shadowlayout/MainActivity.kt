@@ -1,52 +1,112 @@
 package com.sonsation.shadowlayout
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import android.widget.SeekBar
-import com.sonsation.library.ShadowLayout
+import com.sonsation.shadowlayout.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        /*findViewById<SeekBar>(R.id.seek_bar).min = 0
-        findViewById<SeekBar>(R.id.seek_bar).max = 255
-        findViewById<SeekBar>(R.id.seek_bar).setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                findViewById<ShadowLayout>(R.id.shadow_layout).alpha = progress.toFloat() / 255
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-        })*/
-
+    private val bind by lazy {
+        ActivityMainBinding.inflate(layoutInflater)
     }
 
-    fun loadBitmapFromView(v: View?, weight: Int? = null, height: Int? = null): Bitmap? {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(bind.root)
 
-        if (v == null)
-            return null
+        setupBackgroundShadow()
+    }
 
-        val b = Bitmap.createBitmap(
-            weight ?: v.width,
-            height ?: v.height,
-            Bitmap.Config.ARGB_8888
-        )
+    private fun setupBackgroundShadow() {
 
-        val c = Canvas(b)
-        c.drawColor(Color.TRANSPARENT)
-        v.layout(v.left, v.top, v.right, v.bottom)
-        v.draw(c)
-        return b
+        val shadowLayout = bind.shadowLayout
+
+        var xOffset = 0f
+        var yOffset = 0f
+        var blur = 0f
+        var spread = 0f
+        var color = Color.parseColor("#bf000000")
+
+        bind.xSeekbar.apply {
+            min = -200
+            max = 200
+            setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    xOffset = resources.displayMetrics.density * progress
+                    shadowLayout.updateBackgroundShadow(blur, xOffset, yOffset, spread, color)
+                    bind.xValue.text = "${xOffset}dp"
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+                }
+            })
+        }
+
+        bind.ySeekbar.apply {
+            min = -200
+            max = 200
+            setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    yOffset = resources.displayMetrics.density * progress
+                    shadowLayout.updateBackgroundShadow(blur, xOffset, yOffset, spread, color)
+                    bind.yValue.text = "${yOffset}dp"
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+                }
+            })
+        }
+
+        bind.radiusSeekbar.apply {
+            min = 0
+            max = 200
+            setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    blur = resources.displayMetrics.density * progress
+                    shadowLayout.updateBackgroundShadow(blur, xOffset, yOffset, spread, color)
+                    bind.radiusValue.text = "${blur}dp"
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+                }
+            })
+        }
+
+        bind.spreadSeekbar.apply {
+            min = 0
+            max = 100
+            setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    spread = resources.displayMetrics.density * progress
+                    shadowLayout.updateBackgroundShadow(blur, xOffset, yOffset, spread, color)
+                    bind.spreadValue.text = "${spread}dp"
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+                }
+            })
+        }
     }
 }
