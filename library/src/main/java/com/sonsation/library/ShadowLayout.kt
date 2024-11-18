@@ -4,11 +4,7 @@ import android.content.Context
 import android.graphics.*
 import android.os.Build
 import android.util.AttributeSet
-import android.util.Log
-import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.TextView
 import com.sonsation.library.effet.*
 import com.sonsation.library.utils.ViewHelper
 import kotlin.math.abs
@@ -18,8 +14,18 @@ class ShadowLayout : FrameLayout {
     private val viewHelper by lazy { ViewHelper(context) }
     private val background by lazy { Background() }
     private val gradient by lazy { Gradient() }
-    private val backgroundShadowList by lazy { mutableListOf<Shadow>() }
-    private val foregroundShadowList by lazy { mutableListOf<Shadow>() }
+    private val backgroundShadows by lazy { mutableListOf<Shadow>() }
+    private val foregroundShadows by lazy { mutableListOf<Shadow>() }
+    private val customEffects by lazy { mutableListOf<Effect>() }
+
+    private val effects: List<Effect>
+        get() = listOf<Effect>(
+            *backgroundShadows.toTypedArray(),
+            background,
+            *foregroundShadows.toTypedArray(),
+            gradient,
+            *customEffects.toTypedArray()).apply {
+        }
 
     private var clipOutLine = false
 
@@ -29,6 +35,7 @@ class ShadowLayout : FrameLayout {
     constructor(context: Context) : super(context) {
         init(context, null, 0)
     }
+
     constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet) {
         init(context, attributeSet, 0)
     }
@@ -101,12 +108,20 @@ class ShadowLayout : FrameLayout {
                         a.getDimension(R.styleable.ShadowLayout_stroke_gradient_offset_y, 0f)
                     val gradientAngle = a.getInt(R.styleable.ShadowLayout_stroke_gradient_angle, -1)
 
-                    val gradients = viewHelper.parseGradientArray(a.getString(R.styleable.ShadowLayout_gradient_array))
-                    val gradientPositions = viewHelper.parseGradientPositions(a.getString(R.styleable.ShadowLayout_gradient_positions))
+                    val gradients =
+                        viewHelper.parseGradientArray(a.getString(R.styleable.ShadowLayout_gradient_array))
+                    val gradientPositions =
+                        viewHelper.parseGradientPositions(a.getString(R.styleable.ShadowLayout_gradient_positions))
 
                     init(
-                        gradientAngle, gradientStartColor, gradientCenterColor, gradientEndColor,
-                        gradientOffsetX, gradientOffsetY, gradients?.toIntArray(), gradientPositions?.toFloatArray()
+                        gradientAngle,
+                        gradientStartColor,
+                        gradientCenterColor,
+                        gradientEndColor,
+                        gradientOffsetX,
+                        gradientOffsetY,
+                        gradients?.toIntArray(),
+                        gradientPositions?.toFloatArray()
                     )
                 }
             }
@@ -132,7 +147,7 @@ class ShadowLayout : FrameLayout {
                 radiusWeight = a.getFloat(R.styleable.ShadowLayout_background_radius_weight, 1f)
             }
 
-            backgroundShadowList.apply {
+            backgroundShadows.apply {
 
                 val shadow = Shadow().apply {
                     val shadowColor = a.getColor(
@@ -144,7 +159,14 @@ class ShadowLayout : FrameLayout {
                     val shadowBlurSize = a.getDimension(R.styleable.ShadowLayout_shadow_blur, 0f)
                     val shadowSpread = a.getDimension(R.styleable.ShadowLayout_shadow_spread, 0f)
 
-                    init(true, shadowBlurSize, shadowOffsetX, shadowOffsetY, shadowSpread, shadowColor)
+                    init(
+                        true,
+                        shadowBlurSize,
+                        shadowOffsetX,
+                        shadowOffsetY,
+                        shadowSpread,
+                        shadowColor
+                    )
 
                     updateAlpha(defaultAlpha)
                 }
@@ -164,20 +186,30 @@ class ShadowLayout : FrameLayout {
                 }
             }
 
-            foregroundShadowList.apply {
+            foregroundShadows.apply {
 
                 val shadow = Shadow().apply {
                     val shadowColor = a.getColor(
                         R.styleable.ShadowLayout_inner_shadow_color,
                         ViewHelper.NOT_SET_COLOR
                     )
-                    val shadowOffsetX = a.getDimension(R.styleable.ShadowLayout_inner_shadow_offset_x, 0f)
-                    val shadowOffsetY = a.getDimension(R.styleable.ShadowLayout_inner_shadow_offset_y, 0f)
+                    val shadowOffsetX =
+                        a.getDimension(R.styleable.ShadowLayout_inner_shadow_offset_x, 0f)
+                    val shadowOffsetY =
+                        a.getDimension(R.styleable.ShadowLayout_inner_shadow_offset_y, 0f)
                     val shadowBlurSize =
                         a.getDimension(R.styleable.ShadowLayout_inner_shadow_blur, 0f)
-                    val shadowSpread = a.getDimension(R.styleable.ShadowLayout_inner_shadow_spread, 0f)
+                    val shadowSpread =
+                        a.getDimension(R.styleable.ShadowLayout_inner_shadow_spread, 0f)
 
-                    init(false, shadowBlurSize, shadowOffsetX, shadowOffsetY, shadowSpread, shadowColor)
+                    init(
+                        false,
+                        shadowBlurSize,
+                        shadowOffsetX,
+                        shadowOffsetY,
+                        shadowSpread,
+                        shadowColor
+                    )
 
                     val shadowType = a.getString(R.styleable.ShadowLayout_inner_shadow_type)
 
@@ -220,12 +252,20 @@ class ShadowLayout : FrameLayout {
             val gradientOffsetY = a.getDimension(R.styleable.ShadowLayout_gradient_offset_y, 0f)
             val gradientAngle = a.getInt(R.styleable.ShadowLayout_gradient_angle, -1)
 
-            val gradients = viewHelper.parseGradientArray(a.getString(R.styleable.ShadowLayout_gradient_array))
-            val gradientPositions = viewHelper.parseGradientPositions(a.getString(R.styleable.ShadowLayout_gradient_positions))
+            val gradients =
+                viewHelper.parseGradientArray(a.getString(R.styleable.ShadowLayout_gradient_array))
+            val gradientPositions =
+                viewHelper.parseGradientPositions(a.getString(R.styleable.ShadowLayout_gradient_positions))
 
             gradient.init(
-                gradientAngle, gradientStartColor, gradientCenterColor, gradientEndColor,
-                gradientOffsetX, gradientOffsetY, gradients?.toIntArray(), gradientPositions?.toFloatArray()
+                gradientAngle,
+                gradientStartColor,
+                gradientCenterColor,
+                gradientEndColor,
+                gradientOffsetX,
+                gradientOffsetY,
+                gradients?.toIntArray(),
+                gradientPositions?.toFloatArray()
             )
         } finally {
             a.recycle()
@@ -235,16 +275,8 @@ class ShadowLayout : FrameLayout {
 
     override fun dispatchDraw(canvas: Canvas) {
 
-        with (viewHelper) {
-
-            backgroundShadowList.forEach {
-                canvas.drawEffect(it)
-            }
-
-            canvas.drawEffect(background)
-            canvas.drawEffect(gradient)
-
-            foregroundShadowList.forEach {
+        with(viewHelper) {
+            effects.forEach {
                 canvas.drawEffect(it)
             }
         }
@@ -264,16 +296,8 @@ class ShadowLayout : FrameLayout {
         val width = abs(right - left)
         val height = abs(bottom - top)
 
-        with (viewHelper) {
-
-            backgroundShadowList.forEach {
-                updateOffset(it, width, height)
-            }
-
-            updateOffset(background, width, height)
-            updateOffset(gradient, width, height)
-
-            foregroundShadowList.forEach {
+        with(viewHelper) {
+            effects.forEach {
                 updateOffset(it, width, height)
             }
         }
@@ -281,6 +305,28 @@ class ShadowLayout : FrameLayout {
         for (i in 0 until childCount) {
             getChildAt(i)?.alpha = defaultAlpha
         }
+    }
+
+    override fun setAlpha(alpha: Float) {
+
+        if (!isInit)
+            return
+
+        defaultAlpha = alpha
+
+        effects.forEach {
+            it.updateAlpha(alpha)
+        }
+
+        invalidate()
+
+        for (i in 0 until childCount) {
+            getChildAt(i)?.alpha = alpha
+        }
+    }
+
+    override fun getAlpha(): Float {
+        return defaultAlpha
     }
 
     private fun updatePadding() {
@@ -315,40 +361,46 @@ class ShadowLayout : FrameLayout {
         val shadow = Shadow().apply {
             init(true, blurSize, offsetX, offsetY, 0f, shadowColor)
         }
-        backgroundShadowList.add(shadow)
+        backgroundShadows.add(shadow)
         invalidate()
     }
 
-    fun addBackgroundShadow(blurSize: Float, offsetX: Float, offsetY: Float, spread: Float, shadowColor: Int) {
+    fun addBackgroundShadow(
+        blurSize: Float,
+        offsetX: Float,
+        offsetY: Float,
+        spread: Float,
+        shadowColor: Int
+    ) {
         val shadow = Shadow().apply {
             init(true, blurSize, offsetX, offsetY, spread, shadowColor)
         }
-        backgroundShadowList.add(shadow)
+        backgroundShadows.add(shadow)
         invalidate()
     }
 
     fun removeBackgroundShadowLast() {
-        backgroundShadowList.removeLastOrNull()
+        backgroundShadows.removeLastOrNull()
         invalidate()
     }
 
     fun removeBackgroundShadowFirst() {
-        backgroundShadowList.removeFirstOrNull()
+        backgroundShadows.removeFirstOrNull()
         invalidate()
     }
 
     fun removeAllBackgroundShadows() {
-        backgroundShadowList.clear()
+        backgroundShadows.clear()
         invalidate()
     }
 
     fun removeBackgroundShadow(position: Int) {
-        backgroundShadowList.removeAt(position)
+        backgroundShadows.removeAt(position)
         invalidate()
     }
 
     fun updateBackgroundShadow(position: Int, shadow: Shadow) {
-        backgroundShadowList[position] = shadow
+        backgroundShadows[position] = shadow
         invalidate()
     }
 
@@ -359,7 +411,7 @@ class ShadowLayout : FrameLayout {
         offsetY: Float,
         color: Int
     ) {
-        backgroundShadowList[position].init(true, blurSize, offsetX, offsetY, 0f, color)
+        backgroundShadows[position].init(true, blurSize, offsetX, offsetY, 0f, color)
         invalidate()
     }
 
@@ -371,7 +423,7 @@ class ShadowLayout : FrameLayout {
         spread: Float,
         color: Int
     ) {
-        backgroundShadowList[position].init(true, blurSize, offsetX, offsetY, spread, color)
+        backgroundShadows[position].init(true, blurSize, offsetX, offsetY, spread, color)
         invalidate()
     }
 
@@ -383,52 +435,64 @@ class ShadowLayout : FrameLayout {
         updateBackgroundShadow(0, blurSize, offsetX, offsetY, color)
     }
 
-    fun updateBackgroundShadow(blurSize: Float, offsetX: Float, offsetY: Float, spread: Float, color: Int) {
+    fun updateBackgroundShadow(
+        blurSize: Float,
+        offsetX: Float,
+        offsetY: Float,
+        spread: Float,
+        color: Int
+    ) {
         updateBackgroundShadow(0, blurSize, offsetX, offsetY, spread, color)
     }
 
     fun getBackgroundShadowCount(): Int {
-        return backgroundShadowList.size
+        return backgroundShadows.size
     }
 
     fun addForegroundShadow(blurSize: Float, shadowColor: Int) {
         val shadow = Shadow().apply {
             init(false, blurSize, 0f, 0f, 0f, shadowColor)
         }
-        foregroundShadowList.add(shadow)
+        foregroundShadows.add(shadow)
         invalidate()
     }
 
-    fun addForegroundShadow(blurSize: Float, offsetX: Float, offsetY: Float, spread: Float, shadowColor: Int) {
+    fun addForegroundShadow(
+        blurSize: Float,
+        offsetX: Float,
+        offsetY: Float,
+        spread: Float,
+        shadowColor: Int
+    ) {
         val shadow = Shadow().apply {
             init(false, blurSize, offsetX, offsetY, spread, shadowColor)
         }
-        foregroundShadowList.add(shadow)
+        foregroundShadows.add(shadow)
         invalidate()
     }
 
     fun removeForegroundShadowLast() {
-        foregroundShadowList.removeLastOrNull()
+        foregroundShadows.removeLastOrNull()
         invalidate()
     }
 
     fun removeForegroundShadowFirst() {
-        foregroundShadowList.removeFirstOrNull()
+        foregroundShadows.removeFirstOrNull()
         invalidate()
     }
 
     fun removeAllForegroundShadows() {
-        foregroundShadowList.clear()
+        foregroundShadows.clear()
         invalidate()
     }
 
     fun removeForegroundShadow(position: Int) {
-        foregroundShadowList.removeAt(position)
+        foregroundShadows.removeAt(position)
         invalidate()
     }
 
     fun updateForegroundShadow(position: Int, shadow: Shadow) {
-        foregroundShadowList[position] = shadow
+        foregroundShadows[position] = shadow
         invalidate()
     }
 
@@ -439,7 +503,7 @@ class ShadowLayout : FrameLayout {
         offsetY: Float,
         color: Int
     ) {
-        foregroundShadowList[position].init(false, blurSize, offsetX, offsetY, 0f, color)
+        foregroundShadows[position].init(false, blurSize, offsetX, offsetY, 0f, color)
         invalidate()
     }
 
@@ -451,7 +515,7 @@ class ShadowLayout : FrameLayout {
         spread: Float,
         color: Int
     ) {
-        foregroundShadowList[position].init(false, blurSize, offsetX, offsetY, spread, color)
+        foregroundShadows[position].init(false, blurSize, offsetX, offsetY, spread, color)
         invalidate()
     }
 
@@ -463,12 +527,18 @@ class ShadowLayout : FrameLayout {
         updateForegroundShadow(0, blurSize, offsetX, offsetY, color)
     }
 
-    fun updateForegroundShadow(blurSize: Float, offsetX: Float, offsetY: Float, spread: Float, color: Int) {
+    fun updateForegroundShadow(
+        blurSize: Float,
+        offsetX: Float,
+        offsetY: Float,
+        spread: Float,
+        color: Int
+    ) {
         updateForegroundShadow(0, blurSize, offsetX, offsetY, spread, color)
     }
 
     fun getForegroundShadowCount(): Int {
-        return foregroundShadowList.size
+        return foregroundShadows.size
     }
 
     fun updateStrokeWidth(strokeWidth: Float) {
@@ -534,31 +604,23 @@ class ShadowLayout : FrameLayout {
         return viewHelper.strokeInfo
     }
 
-    override fun setAlpha(alpha: Float) {
-
-        if (!isInit)
-            return
-
-        defaultAlpha = alpha
-
-        backgroundShadowList.forEach {
-            it.updateAlpha(alpha)
-        }
-
-        background.updateAlpha(alpha)
-
-        foregroundShadowList.forEach {
-            it.updateAlpha(alpha)
-        }
-
+    fun addCustomEffect(effect: Effect) {
+        customEffects.add(effect)
         invalidate()
-
-        for (i in 0 until childCount) {
-            getChildAt(i)?.alpha = alpha
-        }
     }
 
-    override fun getAlpha(): Float {
-        return defaultAlpha
+    fun removeAllCustomEffects() {
+        customEffects.clear()
+        invalidate()
+    }
+
+    fun removeCustomEffect(index: Int) {
+        customEffects.removeAt(index)
+        invalidate()
+    }
+
+    fun updateCustomEffect(index: Int, effect: Effect) {
+        customEffects[index] = effect
+        invalidate()
     }
 }
