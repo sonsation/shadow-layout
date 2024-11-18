@@ -81,7 +81,7 @@ class Shadow : Effect {
 
     override fun updatePath(radiusInfo: Radius?) {
 
-        val rect = RectF(offsetLeft + shadowOffsetX, offsetTop + shadowOffsetY, offsetRight + shadowOffsetX, offsetBottom + shadowOffsetY)
+        val rect = RectF(offsetLeft, offsetTop, offsetRight, offsetBottom)
 
         if (shadowSpread != 0f) {
             rect.inset(-shadowSpread, -shadowSpread)

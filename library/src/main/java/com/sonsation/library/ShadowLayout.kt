@@ -277,6 +277,7 @@ class ShadowLayout : FrameLayout {
 
         with(viewHelper) {
             effects.forEach {
+                updateOffset(it, canvas.width, canvas.height)
                 canvas.drawEffect(it)
             }
         }
