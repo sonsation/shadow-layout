@@ -14,14 +14,10 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
-
     buildTypes {
-        release {
+        getByName("release") {
             isMinifyEnabled = false
-            proguardFiles(
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro"
-            )
+            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
     }
     compileOptions {
@@ -32,7 +28,8 @@ android {
         jvmTarget = "17"
     }
     publishing {
-        singleVariant("release") {
+        multipleVariants {
+            allVariants()
             withSourcesJar()
             withJavadocJar()
         }
