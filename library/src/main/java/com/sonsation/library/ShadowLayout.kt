@@ -24,8 +24,7 @@ class ShadowLayout : FrameLayout {
             background,
             *foregroundShadows.toTypedArray(),
             gradient,
-            *customEffects.toTypedArray()).apply {
-        }
+            *customEffects.toTypedArray())
 
     private var clipOutLine = false
 
