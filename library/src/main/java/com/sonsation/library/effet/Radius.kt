@@ -23,7 +23,7 @@ class Radius {
         this.bottomRightRadius = br
     }
 
-    fun getRadiusArray(height: Int): FloatArray {
+    fun getRadiusArray(height: Float): FloatArray {
 
         if (radius != 0f) {
 

@@ -42,8 +42,7 @@ class Background : Effect {
 
             strokePaint.apply {
                 isAntiAlias = true
-                style = Paint.Style.STROKE
-                strokeWidth = strokeInfo!!.strokeWidth
+                style = Paint.Style.FILL_AND_STROKE
                 color = strokeInfo!!.strokeColor
 
                 if (Util.onSetAlphaFromColor(this@Background.alpha, strokeInfo!!.strokeColor)) {
@@ -69,36 +68,36 @@ class Background : Effect {
 
     override fun updatePath(radiusInfo: Radius?) {
 
-        if (strokeInfo?.isEnable == true) {
+        val strokeWith = strokeInfo?.takeIf { it.isEnable }?.strokeWidth ?: 0f
+        val viewRect = RectF(offsetLeft, offsetTop, offsetRight, offsetBottom)
 
-            val adjustOffset = strokeInfo!!.strokeWidth.div(2f).toInt()
-            val strokeRect = RectF(offsetLeft - adjustOffset, offsetTop - adjustOffset, offsetRight + adjustOffset, offsetBottom + adjustOffset)
+        if (strokeWith > 0f) {
 
             strokePath.apply {
                 reset()
 
                 if (radiusInfo == null) {
-                    addRect(strokeRect, Path.Direction.CW)
+                    addRect(viewRect, Path.Direction.CW)
                 } else {
-                    val height = (offsetBottom - offsetTop).toInt()
-                    addRoundRect(strokeRect, radiusInfo.getRadiusArray(height), Path.Direction.CW)
+                    val height = viewRect.height()
+                    addRoundRect(viewRect, radiusInfo.getRadiusArray(height), Path.Direction.CW)
                 }
 
                 close()
             }
         }
 
-        val rect = RectF(offsetLeft, offsetTop, offsetRight, offsetBottom)
+        val backgroundRect = RectF(offsetLeft + strokeWith, offsetTop + strokeWith, offsetRight - strokeWith, offsetBottom - strokeWith)
 
         path.apply {
 
             reset()
 
             if (radiusInfo == null) {
-                addRect(rect, Path.Direction.CW)
+                addRect(backgroundRect, Path.Direction.CW)
             } else {
-                val height = (offsetBottom - offsetTop).toInt()
-                addRoundRect(rect, radiusInfo.getRadiusArray(height), Path.Direction.CW)
+                val height = backgroundRect.height()
+                addRoundRect(backgroundRect, radiusInfo.getRadiusArray(height), Path.Direction.CW)
             }
 
             close()
