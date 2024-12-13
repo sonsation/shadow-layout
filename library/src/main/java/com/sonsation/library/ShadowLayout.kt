@@ -73,12 +73,12 @@ class ShadowLayout : FrameLayout {
             val backgroundColor = if (a.hasValue(R.styleable.ShadowLayout_background_color)) {
                 a.getColor(
                     R.styleable.ShadowLayout_background_color,
-                    Color.parseColor("#ffffffff")
+                    Color.parseColor("#00ffffff")
                 )
             } else {
                 a.getColor(
                     R.styleable.ShadowLayout_android_background,
-                    Color.parseColor("#ffffffff")
+                    Color.parseColor("#00ffffff")
                 )
             }
 

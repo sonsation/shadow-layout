@@ -8,8 +8,9 @@ class Background : Effect {
 
     override val paint by lazy { Paint() }
     override val path by lazy { Path() }
-    private val strokePaint by lazy { Paint() }
-    private val strokePath by lazy { Path() }
+
+    private val outlinePaint by lazy { Paint() }
+    private val outlinePath by lazy { Path() }
 
     override var offsetLeft = 0f
     override var offsetTop = 0f
@@ -38,20 +39,23 @@ class Background : Effect {
 
     override fun updatePaint() {
 
-        if (strokeInfo?.isEnable == true) {
+        outlinePaint.apply {
+            isAntiAlias = true
 
-            strokePaint.apply {
-                isAntiAlias = true
-                style = Paint.Style.FILL_AND_STROKE
+            if (strokeInfo?.isEnable == true) {
+                style = Paint.Style.STROKE
                 color = strokeInfo!!.strokeColor
+                strokeWidth = strokeInfo!!.strokeWidth
+            } else {
+                style = Paint.Style.FILL
+            }
 
-                if (Util.onSetAlphaFromColor(this@Background.alpha, strokeInfo!!.strokeColor)) {
-                    alpha = Util.getIntAlpha(this@Background.alpha)
-                }
+            if (Util.onSetAlphaFromColor(this@Background.alpha, strokeInfo!!.strokeColor)) {
+                alpha = Util.getIntAlpha(this@Background.alpha)
+            }
 
-                if (strokeInfo?.gradient?.isEnable == true) {
-                    shader = strokeInfo?.gradient?.getGradientShader()
-                }
+            if (strokeInfo?.gradient?.isEnable == true) {
+                shader = strokeInfo?.gradient?.getGradientShader()
             }
         }
 
@@ -68,49 +72,32 @@ class Background : Effect {
 
     override fun updatePath(radiusInfo: Radius?) {
 
-        val strokeWith = strokeInfo?.takeIf { it.isEnable }?.strokeWidth ?: 0f
         val viewRect = RectF(offsetLeft, offsetTop, offsetRight, offsetBottom)
 
-        if (strokeWith > 0f) {
-
-            strokePath.apply {
-                reset()
-
-                if (radiusInfo == null) {
-                    addRect(viewRect, Path.Direction.CW)
-                } else {
-                    val height = viewRect.height()
-                    addRoundRect(viewRect, radiusInfo.getRadiusArray(height), Path.Direction.CW)
-                }
-
-                close()
-            }
-        }
-
-        val backgroundRect = RectF(offsetLeft + strokeWith, offsetTop + strokeWith, offsetRight - strokeWith, offsetBottom - strokeWith)
-
-        path.apply {
-
+        outlinePath.apply {
             reset()
 
             if (radiusInfo == null) {
-                addRect(backgroundRect, Path.Direction.CW)
+                addRect(viewRect, Path.Direction.CW)
             } else {
-                val height = backgroundRect.height()
-                addRoundRect(backgroundRect, radiusInfo.getRadiusArray(height), Path.Direction.CW)
+                val height = viewRect.height()
+                addRoundRect(viewRect, radiusInfo.getRadiusArray(height), Path.Direction.CW)
             }
 
+            close()
+        }
+
+        path.apply {
+            reset()
+            addRect(viewRect, Path.Direction.CW)
             close()
         }
     }
 
     override fun drawEffect(canvas: Canvas?) {
-
-        if (strokeInfo?.isEnable == true) {
-            canvas?.drawPath(strokePath, strokePaint)
-        }
-
+        canvas?.clipPath(outlinePath)
         canvas?.drawPath(path, paint)
+        canvas?.drawPath(outlinePath, outlinePaint)
     }
 
     override fun updateAlpha(alpha: Float) {
