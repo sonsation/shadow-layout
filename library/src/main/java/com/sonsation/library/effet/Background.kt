@@ -10,7 +10,7 @@ class Background : Effect {
     override val path by lazy { Path() }
 
     private val outlinePaint by lazy { Paint() }
-    private val outlinePath by lazy { Path() }
+    val outlinePath by lazy { Path() }
 
     override var offsetLeft = 0f
     override var offsetTop = 0f
@@ -95,8 +95,10 @@ class Background : Effect {
     }
 
     override fun drawEffect(canvas: Canvas?) {
+        canvas?.save()
         canvas?.clipPath(outlinePath)
         canvas?.drawPath(path, paint)
+        canvas?.restore()
         canvas?.drawPath(outlinePath, outlinePaint)
     }
 

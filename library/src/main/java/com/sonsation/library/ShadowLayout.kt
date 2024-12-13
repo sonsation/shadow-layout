@@ -26,7 +26,7 @@ class ShadowLayout : FrameLayout {
             gradient,
             *customEffects.toTypedArray())
 
-    private var clipOutLine = false
+    private var clipOutLine = true
 
     private var isInit = false
     private var defaultAlpha = 0f
@@ -66,19 +66,19 @@ class ShadowLayout : FrameLayout {
 
         try {
 
-            clipOutLine = a.getBoolean(R.styleable.ShadowLayout_clipToOutline, false)
+            clipOutLine = a.getBoolean(R.styleable.ShadowLayout_clipToOutline, true)
             defaultAlpha = a.getFloat(R.styleable.ShadowLayout_android_alpha, 1f)
 
             //default background settings
             val backgroundColor = if (a.hasValue(R.styleable.ShadowLayout_background_color)) {
                 a.getColor(
                     R.styleable.ShadowLayout_background_color,
-                    Color.parseColor("#00ffffff")
+                    Color.parseColor("#ffffffff")
                 )
             } else {
                 a.getColor(
                     R.styleable.ShadowLayout_android_background,
-                    Color.parseColor("#00ffffff")
+                    Color.parseColor("#ffffffff")
                 )
             }
 
@@ -282,7 +282,7 @@ class ShadowLayout : FrameLayout {
         }
 
         if (clipOutLine) {
-            canvas.clipPath(background.path)
+            canvas.clipPath(background.outlinePath)
         }
 
         super.dispatchDraw(canvas)
