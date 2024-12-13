@@ -8,5 +8,12 @@ class Stroke {
         get() = strokeWidth != 0f && strokeColor != ViewHelper.NOT_SET_COLOR
     var strokeWidth: Float = 0f
     var strokeColor: Int = ViewHelper.NOT_SET_COLOR
-    var gradient: Gradient? = null
+
+    fun updateStrokeWidth(strokeWidth: Float) {
+        this.strokeWidth = strokeWidth
+    }
+
+    fun updateStrokeColor(color: Int) {
+        this.strokeColor = color
+    }
 }

@@ -10,6 +10,8 @@ class ViewHelper(private val context: Context) {
 
     var radiusInfo: Radius? = null
     var strokeInfo: Stroke? = null
+    var gradientInfo: Gradient? = null
+    var strokeGradient: Gradient? = null
 
     companion object {
         const val NOT_SET_COLOR = -101
@@ -18,11 +20,13 @@ class ViewHelper(private val context: Context) {
     }
 
     fun Canvas.drawEffect(effect: Effect) {
+        updateOffset(effect, width, height)
         effect.updatePath(radiusInfo)
+        effect.updatePaint()
         effect.drawEffect(this)
     }
 
-    fun updateOffset(effect: Effect, width: Int, height: Int) {
+    private fun updateOffset(effect: Effect, width: Int, height: Int) {
 
         when (effect) {
             is Shadow -> {
@@ -55,10 +59,6 @@ class ViewHelper(private val context: Context) {
             }
             is Background -> {
                 effect.updateOffset(0f, 0f, width.toFloat(), height.toFloat())
-            }
-            is Gradient -> {
-                effect.updateOffset(0f, 0f, width.toFloat(), height.toFloat())
-                effect.updatePaint()
             }
         }
     }

@@ -20,12 +20,16 @@ class Background : Effect {
     override var alpha = 0f
 
     private var backgroundColor = ViewHelper.NOT_SET_COLOR
-    private var strokeInfo: Stroke? = null
-    private var shadowInfo: Shadow? = null
 
-    fun init(strokeInfo: Stroke?, backgroundColor: Int) {
-        this.strokeInfo = strokeInfo
+    private var strokeInfo: Stroke? = null
+    private var strokeGradient: Gradient? = null
+    private var gradient: Gradient? = null
+
+    fun init(backgroundColor: Int, strokeInfo: Stroke?, strokeGradient: Gradient?, gradient: Gradient?) {
         this.backgroundColor = backgroundColor
+        this.strokeInfo = strokeInfo
+        this.strokeGradient = strokeGradient
+        this.gradient = gradient
 
         updatePaint()
     }
@@ -39,30 +43,47 @@ class Background : Effect {
 
     override fun updatePaint() {
 
-        outlinePaint.apply {
+        with (outlinePaint) {
+
             isAntiAlias = true
 
             if (strokeInfo?.isEnable == true) {
                 style = Paint.Style.STROKE
                 color = strokeInfo!!.strokeColor
                 strokeWidth = strokeInfo!!.strokeWidth
+
+                shader = if (strokeGradient?.isEnable == true) {
+                    strokeGradient?.getGradientShader(offsetLeft, offsetTop, offsetRight, offsetBottom)
+                } else {
+                    null
+                }
             } else {
+                color = backgroundColor
+                strokeWidth = 0f
                 style = Paint.Style.FILL
+
+                shader = if (gradient?.isEnable == true) {
+                    gradient?.getGradientShader(offsetLeft, offsetTop, offsetRight, offsetBottom)
+                } else {
+                    null
+                }
             }
 
             if (Util.onSetAlphaFromColor(this@Background.alpha, strokeInfo!!.strokeColor)) {
                 alpha = Util.getIntAlpha(this@Background.alpha)
             }
-
-            if (strokeInfo?.gradient?.isEnable == true) {
-                shader = strokeInfo?.gradient?.getGradientShader()
-            }
         }
 
-        paint.apply {
+        with (paint) {
             isAntiAlias = true
             color = backgroundColor
             style = Paint.Style.FILL_AND_STROKE
+
+            shader = if (strokeInfo?.isEnable == true && gradient?.isEnable == true) {
+                gradient?.getGradientShader(offsetLeft, offsetTop, offsetRight, offsetBottom)
+            } else {
+                null
+            }
 
             if (Util.onSetAlphaFromColor(this@Background.alpha, backgroundColor)) {
                 alpha = Util.getIntAlpha(this@Background.alpha)
@@ -73,15 +94,17 @@ class Background : Effect {
     override fun updatePath(radiusInfo: Radius?) {
 
         val viewRect = RectF(offsetLeft, offsetTop, offsetRight, offsetBottom)
+        val strokeWidth = (strokeInfo?.takeIf { it.isEnable }?.strokeWidth ?: 0f).div(2f)
+        val strokeRect = RectF(offsetLeft + strokeWidth, offsetTop + strokeWidth, offsetRight - strokeWidth, offsetBottom - strokeWidth)
 
         outlinePath.apply {
             reset()
 
             if (radiusInfo == null) {
-                addRect(viewRect, Path.Direction.CW)
+                addRect(strokeRect, Path.Direction.CW)
             } else {
-                val height = viewRect.height()
-                addRoundRect(viewRect, radiusInfo.getRadiusArray(height), Path.Direction.CW)
+                val height = strokeRect.height()
+                addRoundRect(strokeRect, radiusInfo.getRadiusArray(height), Path.Direction.CW)
             }
 
             close()
@@ -104,34 +127,9 @@ class Background : Effect {
 
     override fun updateAlpha(alpha: Float) {
         this.alpha = alpha
-        updatePaint()
     }
 
     fun setBackgroundColor(color: Int) {
         this.backgroundColor = color
-        updatePaint()
-    }
-
-    fun updateStrokeWidth(strokeWidth: Float) {
-
-        if (strokeInfo == null) {
-            strokeInfo = Stroke()
-        }
-
-        strokeInfo!!.strokeWidth = strokeWidth
-        updatePaint()
-    }
-
-    fun updateStrokeColor(color: Int) {
-        if (strokeInfo == null) {
-            strokeInfo = Stroke()
-        }
-
-        strokeInfo!!.strokeColor = color
-        updatePaint()
-    }
-
-    fun getStrokeInfo(): Stroke? {
-        return null
     }
 }

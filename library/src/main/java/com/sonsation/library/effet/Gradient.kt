@@ -1,23 +1,15 @@
 package com.sonsation.library.effet
 
 import android.graphics.*
+import android.util.Log
 import com.sonsation.library.utils.ViewHelper
 
-class Gradient : Effect {
-
-    override val paint by lazy { Paint() }
-    override val path by lazy { Path() }
-
-    override var offsetLeft = 0f
-    override var offsetTop = 0f
-    override var offsetRight = 0f
-    override var offsetBottom = 0f
-
-    override var alpha = 0f
+class Gradient {
 
     val isEnable: Boolean
         get() = ((gradientStartColor != ViewHelper.NOT_SET_COLOR && gradientEndColor != ViewHelper.NOT_SET_COLOR)
                 || (gradientArray != null && gradientArray?.isNotEmpty() == true)) && gradientAngle != -1
+
     private var gradientStartColor = ViewHelper.NOT_SET_COLOR
     private var gradientCenterColor = ViewHelper.NOT_SET_COLOR
     private var gradientEndColor = ViewHelper.NOT_SET_COLOR
@@ -46,58 +38,9 @@ class Gradient : Effect {
         this.gradientOffsetY = offsetY
         this.gradientArray = gradientArray
         this.gradientPositions = gradientPositions
-
-        updatePaint()
     }
 
-    override fun updateOffset(left: Float, top: Float, right: Float, bottom: Float) {
-        this.offsetLeft = left
-        this.offsetTop = top
-        this.offsetRight = right
-        this.offsetBottom = bottom
-    }
-
-    override fun updatePaint() {
-        paint.apply {
-            isAntiAlias = true
-            shader = getGradientShader()
-
-            if (localMatrix != null) {
-                shader.setLocalMatrix(localMatrix)
-            }
-        }
-    }
-
-    override fun updatePath(radiusInfo: Radius?) {
-        val rect = RectF(offsetLeft, offsetTop, offsetRight, offsetBottom)
-
-        path.apply {
-            reset()
-
-            if (radiusInfo == null) {
-                addRect(rect, Path.Direction.CW)
-            } else {
-                val height = rect.height()
-                addRoundRect(rect, radiusInfo.getRadiusArray(height), Path.Direction.CW)
-            }
-
-            close()
-        }
-    }
-
-    override fun drawEffect(canvas: Canvas?) {
-
-        if (!isEnable)
-            return
-
-        canvas?.drawPath(path, paint)
-    }
-
-    override fun updateAlpha(alpha: Float) {
-
-    }
-
-    fun getGradientShader(): LinearGradient {
+    fun getGradientShader(offsetLeft: Float, offsetTop: Float, offsetRight: Float, offsetBottom: Float): LinearGradient {
 
         val colors = if (gradientArray != null && gradientArray?.isNotEmpty() == true) {
             gradientArray!!
@@ -165,8 +108,6 @@ class Gradient : Effect {
         this.gradientStartColor = startColor
         this.gradientCenterColor = centerColor
         this.gradientEndColor = endColor
-
-        updatePaint()
     }
 
     fun updateGradientColor(startColor: Int, endColor: Int) {
@@ -175,21 +116,17 @@ class Gradient : Effect {
 
     fun updateGradientAngle(angle: Int) {
         this.gradientAngle = angle
-        updatePaint()
     }
 
     fun updateGradientOffsetX(offset: Float) {
         this.gradientOffsetX = offset
-        updatePaint()
     }
 
     fun updateGradientOffsetY(offset: Float) {
         this.gradientOffsetY = offset
-        updatePaint()
     }
 
     fun updateLocalMatrix(matrix: Matrix?) {
         this.localMatrix = matrix
-        updatePaint()
     }
 }

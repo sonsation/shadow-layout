@@ -13,7 +13,6 @@ class ShadowLayout : FrameLayout {
 
     private val viewHelper by lazy { ViewHelper(context) }
     private val background by lazy { Background() }
-    private val gradient by lazy { Gradient() }
     private val backgroundShadows by lazy { mutableListOf<Shadow>() }
     private val foregroundShadows by lazy { mutableListOf<Shadow>() }
     private val customEffects by lazy { mutableListOf<Effect>() }
@@ -23,7 +22,6 @@ class ShadowLayout : FrameLayout {
             *backgroundShadows.toTypedArray(),
             background,
             *foregroundShadows.toTypedArray(),
-            gradient,
             *customEffects.toTypedArray())
 
     private var clipOutLine = true
@@ -69,25 +67,68 @@ class ShadowLayout : FrameLayout {
             clipOutLine = a.getBoolean(R.styleable.ShadowLayout_clipToOutline, true)
             defaultAlpha = a.getFloat(R.styleable.ShadowLayout_android_alpha, 1f)
 
-            //default background settings
-            val backgroundColor = if (a.hasValue(R.styleable.ShadowLayout_background_color)) {
-                a.getColor(
-                    R.styleable.ShadowLayout_background_color,
-                    Color.parseColor("#ffffffff")
-                )
-            } else {
-                a.getColor(
-                    R.styleable.ShadowLayout_android_background,
-                    Color.parseColor("#ffffffff")
-                )
-            }
 
-            viewHelper.strokeInfo = Stroke().apply {
-                strokeColor =
-                    a.getColor(R.styleable.ShadowLayout_stroke_color, ViewHelper.NOT_SET_COLOR)
-                strokeWidth = a.getDimension(R.styleable.ShadowLayout_stroke_width, 0f)
+            with (viewHelper) {
+                strokeInfo = Stroke().apply {
+                    strokeColor =
+                        a.getColor(R.styleable.ShadowLayout_stroke_color, ViewHelper.NOT_SET_COLOR)
+                    strokeWidth = a.getDimension(R.styleable.ShadowLayout_stroke_width, 0f)
+                }
 
-                gradient = Gradient().apply {
+                radiusInfo = Radius().apply {
+                    radius = a.getDimension(R.styleable.ShadowLayout_background_radius, 0f)
+
+                    if (radius == 0f) {
+                        topLeftRadius =
+                            a.getDimension(R.styleable.ShadowLayout_background_top_left_radius, 0f)
+                        topRightRadius =
+                            a.getDimension(R.styleable.ShadowLayout_background_top_right_radius, 0f)
+                        bottomLeftRadius =
+                            a.getDimension(R.styleable.ShadowLayout_background_bottom_left_radius, 0f)
+                        bottomRightRadius =
+                            a.getDimension(R.styleable.ShadowLayout_background_bottom_right_radius, 0f)
+                    }
+
+                    smoothCorner = a.getBoolean(R.styleable.ShadowLayout_smooth_corner, false)
+                    radiusWeight = a.getFloat(R.styleable.ShadowLayout_background_radius_weight, 1f)
+                }
+
+                gradientInfo = Gradient().apply {
+
+                    val gradientStartColor = a.getColor(
+                        R.styleable.ShadowLayout_gradient_start_color,
+                        ViewHelper.NOT_SET_COLOR
+                    )
+                    val gradientCenterColor = a.getColor(
+                        R.styleable.ShadowLayout_gradient_center_color,
+                        ViewHelper.NOT_SET_COLOR
+                    )
+                    val gradientEndColor = a.getColor(
+                        R.styleable.ShadowLayout_gradient_end_color,
+                        ViewHelper.NOT_SET_COLOR
+                    )
+                    val gradientOffsetX = a.getDimension(R.styleable.ShadowLayout_gradient_offset_x, 0f)
+                    val gradientOffsetY = a.getDimension(R.styleable.ShadowLayout_gradient_offset_y, 0f)
+                    val gradientAngle = a.getInt(R.styleable.ShadowLayout_gradient_angle, -1)
+
+                    val gradients =
+                        viewHelper.parseGradientArray(a.getString(R.styleable.ShadowLayout_gradient_array))
+                    val gradientPositions =
+                        viewHelper.parseGradientPositions(a.getString(R.styleable.ShadowLayout_gradient_positions))
+
+                    init(
+                        gradientAngle,
+                        gradientStartColor,
+                        gradientCenterColor,
+                        gradientEndColor,
+                        gradientOffsetX,
+                        gradientOffsetY,
+                        gradients?.toIntArray(),
+                        gradientPositions?.toFloatArray()
+                    )
+                }
+
+                strokeGradient = Gradient().apply {
 
                     val gradientStartColor = a.getColor(
                         R.styleable.ShadowLayout_stroke_gradient_start_color,
@@ -125,26 +166,17 @@ class ShadowLayout : FrameLayout {
                 }
             }
 
-            background.init(viewHelper.strokeInfo, backgroundColor)
-            background.updateAlpha(defaultAlpha)
-
-            viewHelper.radiusInfo = Radius().apply {
-                radius = a.getDimension(R.styleable.ShadowLayout_background_radius, 0f)
-
-                if (radius == 0f) {
-                    topLeftRadius =
-                        a.getDimension(R.styleable.ShadowLayout_background_top_left_radius, 0f)
-                    topRightRadius =
-                        a.getDimension(R.styleable.ShadowLayout_background_top_right_radius, 0f)
-                    bottomLeftRadius =
-                        a.getDimension(R.styleable.ShadowLayout_background_bottom_left_radius, 0f)
-                    bottomRightRadius =
-                        a.getDimension(R.styleable.ShadowLayout_background_bottom_right_radius, 0f)
-                }
-
-                smoothCorner = a.getBoolean(R.styleable.ShadowLayout_smooth_corner, false)
-                radiusWeight = a.getFloat(R.styleable.ShadowLayout_background_radius_weight, 1f)
+            val backgroundColor = if (a.hasValue(R.styleable.ShadowLayout_background_color)) {
+                a.getColor(
+                    R.styleable.ShadowLayout_background_color,
+                    Color.parseColor("#ffffffff")
+                )
+            } else {
+                Color.parseColor("#ffffffff")
             }
+
+            background.init(backgroundColor, viewHelper.strokeInfo, viewHelper.strokeGradient, viewHelper.gradientInfo)
+            background.updateAlpha(defaultAlpha)
 
             backgroundShadows.apply {
 
@@ -233,50 +265,17 @@ class ShadowLayout : FrameLayout {
                     addAll(shadows)
                 }
             }
-
-            //gradient Settings
-            val gradientStartColor = a.getColor(
-                R.styleable.ShadowLayout_gradient_start_color,
-                ViewHelper.NOT_SET_COLOR
-            )
-            val gradientCenterColor = a.getColor(
-                R.styleable.ShadowLayout_gradient_center_color,
-                ViewHelper.NOT_SET_COLOR
-            )
-            val gradientEndColor = a.getColor(
-                R.styleable.ShadowLayout_gradient_end_color,
-                ViewHelper.NOT_SET_COLOR
-            )
-            val gradientOffsetX = a.getDimension(R.styleable.ShadowLayout_gradient_offset_x, 0f)
-            val gradientOffsetY = a.getDimension(R.styleable.ShadowLayout_gradient_offset_y, 0f)
-            val gradientAngle = a.getInt(R.styleable.ShadowLayout_gradient_angle, -1)
-
-            val gradients =
-                viewHelper.parseGradientArray(a.getString(R.styleable.ShadowLayout_gradient_array))
-            val gradientPositions =
-                viewHelper.parseGradientPositions(a.getString(R.styleable.ShadowLayout_gradient_positions))
-
-            gradient.init(
-                gradientAngle,
-                gradientStartColor,
-                gradientCenterColor,
-                gradientEndColor,
-                gradientOffsetX,
-                gradientOffsetY,
-                gradients?.toIntArray(),
-                gradientPositions?.toFloatArray()
-            )
         } finally {
             a.recycle()
             isInit = true
         }
     }
 
+
     override fun dispatchDraw(canvas: Canvas) {
 
         with(viewHelper) {
             effects.forEach {
-                updateOffset(it, canvas.width, canvas.height)
                 canvas.drawEffect(it)
             }
         }
@@ -290,17 +289,6 @@ class ShadowLayout : FrameLayout {
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
-
-        updatePadding()
-
-        val width = abs(right - left)
-        val height = abs(bottom - top)
-
-        with(viewHelper) {
-            effects.forEach {
-                updateOffset(it, width, height)
-            }
-        }
 
         for (i in 0 until childCount) {
             getChildAt(i)?.alpha = defaultAlpha
@@ -316,6 +304,7 @@ class ShadowLayout : FrameLayout {
 
         effects.forEach {
             it.updateAlpha(alpha)
+            it.updatePaint()
         }
 
         invalidate()
@@ -327,10 +316,6 @@ class ShadowLayout : FrameLayout {
 
     override fun getAlpha(): Float {
         return defaultAlpha
-    }
-
-    private fun updatePadding() {
-
     }
 
     fun updateBackgroundColor(color: Int) {
@@ -542,42 +527,72 @@ class ShadowLayout : FrameLayout {
     }
 
     fun updateStrokeWidth(strokeWidth: Float) {
-        background.updateStrokeWidth(strokeWidth)
+        viewHelper.strokeInfo?.updateStrokeWidth(strokeWidth)
         invalidate()
     }
 
     fun updateStrokeColor(color: Int) {
-        background.updateStrokeColor(color)
+        viewHelper.strokeInfo?.updateStrokeColor(color)
         invalidate()
     }
 
     fun updateGradientColor(startColor: Int, centerColor: Int, endColor: Int) {
-        gradient.updateGradientColor(startColor, centerColor, endColor)
+        viewHelper.gradientInfo?.updateGradientColor(startColor, centerColor, endColor)
         invalidate()
     }
 
     fun updateGradientColor(startColor: Int, endColor: Int) {
-        gradient.updateGradientColor(startColor, endColor)
+        viewHelper.gradientInfo?.updateGradientColor(startColor, endColor)
         invalidate()
     }
 
     fun updateGradientAngle(angle: Int) {
-        gradient.updateGradientAngle(angle)
+        viewHelper.gradientInfo?.updateGradientAngle(angle)
         invalidate()
     }
 
     fun updateLocalMatrix(matrix: Matrix?) {
-        gradient.updateLocalMatrix(matrix)
+        viewHelper.gradientInfo?.updateLocalMatrix(matrix)
         invalidate()
     }
 
     fun updateGradientOffsetX(offset: Float) {
-        gradient.updateGradientOffsetX(offset)
+        viewHelper.gradientInfo?.updateGradientOffsetX(offset)
         invalidate()
     }
 
     fun updateGradientOffsetY(offset: Float) {
-        gradient.updateGradientOffsetY(offset)
+        viewHelper.gradientInfo?.updateGradientOffsetY(offset)
+        invalidate()
+    }
+
+    fun updateStrokeGradientColor(startColor: Int, centerColor: Int, endColor: Int) {
+        viewHelper.strokeGradient?.updateGradientColor(startColor, centerColor, endColor)
+        invalidate()
+    }
+
+    fun updateStrokeGradientColor(startColor: Int, endColor: Int) {
+        viewHelper.strokeGradient?.updateGradientColor(startColor, endColor)
+        invalidate()
+    }
+
+    fun updateStrokeGradientAngle(angle: Int) {
+        viewHelper.strokeGradient?.updateGradientAngle(angle)
+        invalidate()
+    }
+
+    fun updateStrokeLocalMatrix(matrix: Matrix?) {
+        viewHelper.strokeGradient?.updateLocalMatrix(matrix)
+        invalidate()
+    }
+
+    fun updateStrokeGradientOffsetX(offset: Float) {
+        viewHelper.strokeGradient?.updateGradientOffsetX(offset)
+        invalidate()
+    }
+
+    fun updateStrokeGradientOffsetY(offset: Float) {
+        viewHelper.strokeGradient?.updateGradientOffsetY(offset)
         invalidate()
     }
 
@@ -592,8 +607,8 @@ class ShadowLayout : FrameLayout {
         invalidate()
     }
 
-    fun getGradientInfo(): Gradient {
-        return gradient
+    fun getGradientInfo(): Gradient? {
+        return viewHelper.gradientInfo
     }
 
     fun getRadiusInfo(): Radius? {
