@@ -26,7 +26,7 @@ class ViewHelper(private val context: Context) {
         effect.drawEffect(this)
     }
 
-    private fun updateOffset(effect: Effect, width: Int, height: Int) {
+    fun updateOffset(effect: Effect, width: Int, height: Int) {
 
         when (effect) {
             is Shadow -> {

@@ -290,11 +290,11 @@ class ShadowLayout : FrameLayout {
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
 
-        effects.forEach { effect ->
-            effect.updateOffset(left.toFloat(),
-                top.toFloat(),
-                right.toFloat(),
-                bottom.toFloat())
+        val width = abs(right - left)
+        val height = abs(bottom - top)
+
+        effects.forEach {
+            viewHelper.updateOffset(it, width, height)
         }
 
         for (i in 0 until childCount) {
