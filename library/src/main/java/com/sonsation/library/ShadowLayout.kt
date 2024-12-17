@@ -238,15 +238,6 @@ class ShadowLayout : FrameLayout {
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
 
-        val offset = RectF(0f, 0f, abs(right - left).toFloat(), abs(bottom - top).toFloat())
-
-        setOutlineAndBackground(offset)
-
-        shadows.forEach { shadow ->
-            shadow.updatePath(outlineRect, radius)
-            shadow.updatePaint(defaultAlpha)
-        }
-
         for (i in 0 until childCount) {
             getChildAt(i)?.alpha = defaultAlpha
         }
