@@ -213,13 +213,13 @@ class ShadowLayout : FrameLayout {
 
         setOutlineAndBackground(offset)
 
-        shadows.forEach {
-            it.updatePath(outlineRect, radius)
-            it.updatePaint(defaultAlpha)
-        }
+        shadows.forEach { shadow ->
+            shadow.updatePath(outlineRect, radius)
+            shadow.updatePaint(defaultAlpha)
 
-        shadows.filter { it.isEnable }.forEach { shadow ->
-            canvas.drawPath(shadow.path, shadow.paint)
+            if (shadow.isEnable) {
+                canvas.drawPath(shadow.path, shadow.paint)
+            }
         }
 
         canvas.save()
@@ -242,9 +242,9 @@ class ShadowLayout : FrameLayout {
 
         setOutlineAndBackground(offset)
 
-        shadows.forEach {
-            it.updatePath(outlineRect, radius)
-            it.updatePaint(defaultAlpha)
+        shadows.forEach { shadow ->
+            shadow.updatePath(outlineRect, radius)
+            shadow.updatePaint(defaultAlpha)
         }
 
         for (i in 0 until childCount) {
