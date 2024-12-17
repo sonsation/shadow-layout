@@ -39,11 +39,14 @@ class Shadow(
 
     fun updatePath(offset: RectF, radius: Radius?) {
 
+        val width = offset.width()
+        val height = offset.height()
+
         val rect = RectF(
-            offset.left,
-            offset.top,
-            offset.right + shadowOffsetX,
-            offset.bottom + shadowOffsetY
+            shadowOffsetX,
+            shadowOffsetY,
+            width + shadowOffsetX,
+            height + shadowOffsetY
         )
 
         if (shadowSpread != 0f) {

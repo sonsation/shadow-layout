@@ -72,9 +72,7 @@ class ShadowLayout : FrameLayout {
         if (attributeSet == null) {
             return
         }
-
-        setWillNotDraw(false)
-
+        
         initAttrsLayout(context, attributeSet, defStyle)
     }
 
@@ -209,7 +207,7 @@ class ShadowLayout : FrameLayout {
         }
     }
 
-    override fun onDraw(canvas: Canvas) {
+    override fun dispatchDraw(canvas: Canvas) {
 
         val offset = RectF(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat())
 
@@ -234,7 +232,7 @@ class ShadowLayout : FrameLayout {
             canvas.clipPath(outlinePath)
         }
 
-        super.onDraw(canvas)
+        super.dispatchDraw(canvas)
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
