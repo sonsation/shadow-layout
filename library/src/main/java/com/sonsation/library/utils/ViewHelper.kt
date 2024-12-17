@@ -1,67 +1,14 @@
 package com.sonsation.library.utils
 
 import android.content.Context
-import android.graphics.Canvas
 import android.graphics.Color
 import com.sonsation.library.effet.*
+import com.sonsation.library.model.ARGB
 import java.lang.NumberFormatException
 
-class ViewHelper(private val context: Context) {
+object ViewHelper {
 
-    var radiusInfo: Radius? = null
-    var strokeInfo: Stroke? = null
-    var gradientInfo: Gradient? = null
-    var strokeGradient: Gradient? = null
-
-    companion object {
-        const val NOT_SET_COLOR = -101
-        const val STROKE_SHADOW = "stroke"
-        const val FILL_SHADOW = "fill"
-    }
-
-    fun Canvas.drawEffect(effect: Effect) {
-        updateOffset(effect, width, height)
-        effect.updatePath(radiusInfo)
-        effect.updatePaint()
-        effect.drawEffect(this)
-    }
-
-    fun updateOffset(effect: Effect, width: Int, height: Int) {
-
-        when (effect) {
-            is Shadow -> {
-
-                if (effect.isBackgroundShadow) {
-
-                    val dx = effect.getShadowOffsetX()
-                    val dy = effect.getShadowOffsetY()
-
-                    effect.updateOffset(dx, dy, width + dx, height + dy)
-                } else {
-
-                    val dx = effect.getShadowOffsetX() + effect.getShadowBlurSize()
-                    val dy = effect.getShadowOffsetY() + effect.getShadowBlurSize()
-
-                    val right = if (dx == 0f) {
-                        width.toFloat()
-                    } else {
-                        width.toFloat() - dx
-                    }
-
-                    val bottom = if (dy == 0f) {
-                        height.toFloat() - dy
-                    } else {
-                        height.toFloat()
-                    }
-
-                    effect.updateOffset(dx, dy, right, bottom)
-                }
-            }
-            is Background -> {
-                effect.updateOffset(0f, 0f, width.toFloat(), height.toFloat())
-            }
-        }
-    }
+    const val NOT_SET_COLOR = -101
 
     fun parseGradientArray(arrays: String?): List<Int>? {
 
@@ -113,7 +60,7 @@ class ViewHelper(private val context: Context) {
         return list
     }
 
-    fun parseShadowArray(isBackground: Boolean, arrays: String?): List<Shadow>? {
+    fun parseShadowArray(context: Context, arrays: String?): List<Shadow>? {
 
         if (arrays.isNullOrEmpty())
             return null
@@ -138,25 +85,25 @@ class ViewHelper(private val context: Context) {
             val shadow = Shadow().apply {
                 if (splitArray.size == 4) {
                     try {
-                        val blurSize = splitArray[0].toFloat().toPx()
-                        val offsetX = splitArray[1].toFloat().toPx()
-                        val offsetY = splitArray[2].toFloat().toPx()
+                        val blurSize = splitArray[0].toFloat().toPx(context)
+                        val offsetX = splitArray[1].toFloat().toPx(context)
+                        val offsetY = splitArray[2].toFloat().toPx(context)
                         val color = Color.parseColor(splitArray[3])
 
-                        init(isBackground, blurSize, offsetX, offsetY, 0f, color)
+                        Shadow(blurSize, color, offsetX, offsetY, 0f)
                     } catch (e: NumberFormatException) {
-                        init(isBackground, 0f, 0f, 0f, 0f, Color.WHITE)
+                        Shadow(0f, Color.WHITE, 0f, 0f, 0f)
                     }
                 } else {
                     try {
-                        val blurSize = splitArray[0].toFloat().toPx()
-                        val offsetX = splitArray[1].toFloat().toPx()
-                        val offsetY = splitArray[2].toFloat().toPx()
-                        val spread = splitArray[3].toFloat().toPx()
+                        val blurSize = splitArray[0].toFloat().toPx(context)
+                        val offsetX = splitArray[1].toFloat().toPx(context)
+                        val offsetY = splitArray[2].toFloat().toPx(context)
+                        val spread = splitArray[3].toFloat().toPx(context)
                         val color = Color.parseColor(splitArray[4])
-                        init(isBackground, blurSize, offsetX, offsetY, spread, color)
+                        Shadow(blurSize, color, offsetX, offsetY, spread)
                     } catch (e: NumberFormatException) {
-                        init(isBackground, 0f, 0f, 0f, 0f, Color.WHITE)
+                        Shadow(blurSize, Color.WHITE, 0f, 0f, 0f)
                     }
                 }
             }
@@ -167,7 +114,44 @@ class ViewHelper(private val context: Context) {
         return list
     }
 
-    fun Float.toPx(): Float {
+    fun Float.toPx(context: Context): Float {
         return context.resources.displayMetrics.density * this
+    }
+
+    fun intToColorModel(color: Int): ARGB {
+
+        val alpha = Color.alpha(color)
+        val red = Color.red(color)
+        val green = Color.green(color)
+        val blue = Color.blue(color)
+
+        return ARGB(alpha, red, green, blue)
+    }
+
+    fun onSetAlphaFromAlpha(alpha: Float, currentAlpha: Int): Boolean {
+
+        if (alpha !in 0f..1f) {
+            return false
+        }
+
+        return (alpha * 255) < currentAlpha
+    }
+
+    fun onSetAlphaFromColor(alpha: Float, color: Int): Boolean {
+
+        if (alpha !in 0f..1f) {
+            return false
+        }
+
+        return (alpha * 255) < Color.alpha(color)
+    }
+
+    fun getIntAlpha(alpha: Float): Int {
+
+        if (alpha !in 0f..1f) {
+            return 255
+        }
+
+        return (255 * alpha).toInt()
     }
 }

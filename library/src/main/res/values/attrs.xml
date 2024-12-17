@@ -3,8 +3,10 @@
 
     <declare-styleable name="ShadowLayout">
         <attr name="clipToOutline" format="boolean"/>
+        <attr name="background_blur" format="dimension" />
         <attr name="background_radius_weight" format="float" />
         <attr name="background_radius" format="dimension" />
+        <attr name="background_radius_half" format="boolean" />
         <attr name="background_top_left_radius" format="dimension" />
         <attr name="background_top_right_radius" format="dimension" />
         <attr name="background_bottom_left_radius" format="dimension" />
@@ -12,6 +14,12 @@
         <attr name="background_color" format="color" />
         <attr name="android:background" format="integer"/>
         <attr name="android:alpha" format="float"/>
+        <attr name="background_blur_type" format="enum">
+            <enum name="NORMAL" value="0"/>
+            <enum name="SOLID" value="1"/>
+            <enum name="OUTER" value="2"/>
+            <enum name="INNER" value="3"/>
+        </attr>
 
         <attr name="stroke_width" format="dimension" />
         <attr name="stroke_color" format="color" />
@@ -21,21 +29,20 @@
         <attr name="stroke_gradient_angle" format="integer"/>
         <attr name="stroke_gradient_offset_x" format="dimension"/>
         <attr name="stroke_gradient_offset_y" format="dimension"/>
+        <attr name="stroke_blur" format="dimension"/>
+        <attr name="stroke_blur_type" format="enum">
+            <enum name="NORMAL" value="0"/>
+            <enum name="SOLID" value="1"/>
+            <enum name="OUTER" value="2"/>
+            <enum name="INNER" value="3"/>
+        </attr>
 
         <attr name="shadow_color" format="color" />
         <attr name="shadow_offset_x" format="dimension" />
         <attr name="shadow_offset_y" format="dimension" />
-        <attr name="shadow_blur" format="dimension" />
+        <attr name="shadow_blur" format="dimension"/>
         <attr name="shadow_spread" format="dimension" />
         <attr name="shadow_array" format="string"/>
-
-        <attr name="inner_shadow_color" format="color" />
-        <attr name="inner_shadow_offset_x" format="dimension" />
-        <attr name="inner_shadow_offset_y" format="dimension" />
-        <attr name="inner_shadow_blur" format="dimension" />
-        <attr name="inner_shadow_spread" format="dimension" />
-        <attr name="inner_shadow_type" format="string" />
-        <attr name="inner_shadow_array" format="string"/>
 
         <attr name="gradient_start_color" format="color"/>
         <attr name="gradient_center_color" format="color"/>
@@ -46,7 +53,5 @@
         <attr name="gradient_margin" format="dimension"/>
         <attr name="gradient_array" format="string"/>
         <attr name="gradient_positions" format="string"/>
-
-        <attr name="smooth_corner" format="boolean" />
     </declare-styleable>
 </resources>

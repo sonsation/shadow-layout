@@ -1,9 +1,11 @@
 package com.sonsation.shadowlayout
 
+import android.graphics.BlurMaskFilter
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.SeekBar
+import androidx.core.view.doOnPreDraw
 import com.sonsation.shadowlayout.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -15,7 +17,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(bind.root)
-
         setupBackgroundShadow()
     }
 
@@ -71,6 +72,46 @@ class MainActivity : AppCompatActivity() {
             })
         }
 
+        bind.backgroundBlurSeekbar.apply {
+            min = 0
+            max = 100
+            setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    val blur = resources.displayMetrics.density * progress
+                    shadowLayout.updateBackgroundBlur(blur)
+                    bind.backgroundBlurValue.text = "${blur}dp"
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+                }
+            })
+        }
+
+        bind.strokeBlurSeekbar.apply {
+            min = 0
+            max = 100
+            setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    val blur = resources.displayMetrics.density * progress
+                    shadowLayout.updateStrokeBlur(blur)
+                    bind.strokeBlurValue.text = "${blur}dp"
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+                }
+            })
+        }
+
         bind.radiusSeekbar.apply {
             min = 0
             max = 200
@@ -113,7 +154,7 @@ class MainActivity : AppCompatActivity() {
 
         bind.widthSeekbar.apply {
             min = 0
-            max = 100
+            max = 200
             setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                     strokeWidth = resources.displayMetrics.density * progress
@@ -218,7 +259,11 @@ class MainActivity : AppCompatActivity() {
                         -1
                     }
                     shadowLayout.updateGradientAngle(angle)
-                    bind.gradientAngleValue.text = "${angle}"
+                    bind.gradientAngleValue.text = if (angle == -1) {
+                        "OFF"
+                    } else {
+                        "${angle} degree"
+                    }
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -298,7 +343,51 @@ class MainActivity : AppCompatActivity() {
                         -1
                     }
                     shadowLayout.updateStrokeGradientAngle(angle)
-                    bind.strokeGradientAngleValue.text = "${angle}"
+                    bind.strokeGradientAngleValue.text = if (angle == -1) {
+                        "OFF"
+                    } else {
+                        "${angle} degree"
+                    }
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+                }
+            })
+        }
+
+        bind.backgroundBlurTypeSeekbar.apply {
+            min = 0
+            max = 4
+            setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    val type = BlurMaskFilter.Blur.entries.find { it.ordinal == progress } ?: BlurMaskFilter.Blur.NORMAL
+                    shadowLayout.updateBackgroundBlurType(type)
+                    bind.backgroundBlurTypeValue.text = "${type.name}"
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+                }
+            })
+        }
+
+        bind.strokeBlurTypeSeekbar.apply {
+            min = 0
+            max = 4
+            setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    val type = BlurMaskFilter.Blur.entries.find { it.ordinal == progress } ?: BlurMaskFilter.Blur.NORMAL
+                    shadowLayout.updateStrokeBlurType(type)
+                    bind.strokeBlurTypeValue.text = "${type.name}"
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {

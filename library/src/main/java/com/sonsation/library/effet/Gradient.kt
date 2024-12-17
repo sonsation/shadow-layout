@@ -1,44 +1,24 @@
 package com.sonsation.library.effet
 
 import android.graphics.*
-import android.util.Log
 import com.sonsation.library.utils.ViewHelper
 
-class Gradient {
+class Gradient(
+    var gradientStartColor: Int = ViewHelper.NOT_SET_COLOR,
+    var gradientCenterColor: Int = ViewHelper.NOT_SET_COLOR,
+    var gradientEndColor: Int = ViewHelper.NOT_SET_COLOR,
+    var gradientAngle: Int = 0,
+    var gradientOffsetX: Float = 0f,
+    var gradientOffsetY: Float = 0f,
+    var gradientArray: IntArray? = null,
+    var gradientPositions: FloatArray? = null
+) {
 
     val isEnable: Boolean
         get() = ((gradientStartColor != ViewHelper.NOT_SET_COLOR && gradientEndColor != ViewHelper.NOT_SET_COLOR)
                 || (gradientArray != null && gradientArray?.isNotEmpty() == true)) && gradientAngle != -1
 
-    private var gradientStartColor = ViewHelper.NOT_SET_COLOR
-    private var gradientCenterColor = ViewHelper.NOT_SET_COLOR
-    private var gradientEndColor = ViewHelper.NOT_SET_COLOR
-    private var gradientAngle = 0
-    private var gradientOffsetX = 0f
-    private var gradientOffsetY = 0f
-    private var gradientArray: IntArray? = null
-    private var gradientPositions: FloatArray? = null
     private var localMatrix: Matrix? = null
-
-    fun init(
-        angle: Int,
-        startColor: Int,
-        centerColor: Int,
-        endColor: Int,
-        offsetX: Float,
-        offsetY: Float,
-        gradientArray: IntArray?,
-        gradientPositions: FloatArray?
-    ) {
-        this.gradientAngle = angle
-        this.gradientStartColor = startColor
-        this.gradientCenterColor = centerColor
-        this.gradientEndColor = endColor
-        this.gradientOffsetX = offsetX
-        this.gradientOffsetY = offsetY
-        this.gradientArray = gradientArray
-        this.gradientPositions = gradientPositions
-    }
 
     fun getGradientShader(offsetLeft: Float, offsetTop: Float, offsetRight: Float, offsetBottom: Float): LinearGradient {
 

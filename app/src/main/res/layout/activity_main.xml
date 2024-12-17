@@ -25,11 +25,11 @@
             android:layout_height="100dp"
             android:layout_marginStart="80dp"
             android:layout_marginEnd="80dp"
-            app:background_color="#FFC107"
+            app:clipToOutline="true"
+            app:background_color="#8d00af"
             app:stroke_color="#193C8A"
-            app:stroke_width="1dp"
-            app:background_radius="10dp"
             app:gradient_end_color="#000000"
+            app:gradient_start_color="#ffffff"
             app:stroke_gradient_start_color="#ffffff"
             app:stroke_gradient_end_color="#FF0000"
             app:layout_constraintEnd_toEndOf="parent"
@@ -74,7 +74,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="Background Shadow"
+                        android:text="Shadow"
                         android:textColor="#000000"
                         android:textSize="16sp"
                         android:textStyle="bold"
@@ -291,6 +291,74 @@
                         android:textSize="14sp"
                         android:gravity="center" />
 
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="20dp"
+                        android:text="blur"
+                        android:textColor="#000000"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/background" />
+
+                    <SeekBar
+                        android:id="@+id/stroke_blur_seekbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="20dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/x_title" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/stroke_blur_value"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="0dp"
+                        android:textColor="#000000"
+                        android:textSize="14sp"
+                        android:gravity="center" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="20dp"
+                        android:text="blur type"
+                        android:textColor="#000000"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/background" />
+
+                    <SeekBar
+                        android:id="@+id/stroke_blur_type_seekbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="20dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/x_title" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/stroke_blur_type_value"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="Normal"
+                        android:textColor="#000000"
+                        android:textSize="14sp"
+                        android:gravity="center" />
+
                 </androidx.appcompat.widget.LinearLayoutCompat>
 
             </com.sonsation.library.ShadowLayout>
@@ -313,7 +381,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="Radius"
+                        android:text="Background"
                         android:textColor="#000000"
                         android:textSize="16sp"
                         android:textStyle="bold" />
@@ -344,6 +412,74 @@
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/background_radius_value"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="0dp"
+                        android:textColor="#000000"
+                        android:textSize="14sp"
+                        android:gravity="center" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="20dp"
+                        android:text="blur"
+                        android:textColor="#000000"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/background" />
+
+                    <SeekBar
+                        android:id="@+id/background_blur_seekbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="20dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/x_title" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/background_blur_value"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="0dp"
+                        android:textColor="#000000"
+                        android:textSize="14sp"
+                        android:gravity="center" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="20dp"
+                        android:text="blur type"
+                        android:textColor="#000000"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/background" />
+
+                    <SeekBar
+                        android:id="@+id/background_blur_type_seekbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="20dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/x_title" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/background_blur_type_value"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
@@ -461,7 +597,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:text="0dp"
+                        android:text="OFF"
                         android:textColor="#000000"
                         android:textSize="14sp"
                         android:gravity="center"/>
@@ -575,7 +711,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:text="0dp"
+                        android:text="OFF"
                         android:textColor="#000000"
                         android:textSize="14sp"
                         android:gravity="center"/>

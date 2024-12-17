@@ -1,6 +1,6 @@
 package com.sonsation.library.model
 
-data class ColorModel(
+data class ARGB(
     val alpha: Int,
     val red: Int,
     val green: Int,

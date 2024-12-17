@@ -1,19 +1,20 @@
 package com.sonsation.library.effet
 
-import com.sonsation.library.utils.ViewHelper
+class Radius(var topLeftRadius: Float = 0f,
+             var topRightRadius: Float = 0f,
+             var bottomLeftRadius: Float = 0f,
+             var bottomRightRadius: Float = 0f) {
 
-class Radius {
+    constructor(radius: Float) : this(radius, radius, radius, radius)
 
-    var radius = 0f
-    var topLeftRadius = 0f
-    var topRightRadius = 0f
-    var bottomLeftRadius = 0f
-    var bottomRightRadius = 0f
-    var smoothCorner = false
+    var radiusHalf = false
     var radiusWeight = 1f
 
     fun updateRadius(radius: Float) {
-        this.radius = radius
+        this.topLeftRadius = radius
+        this.topRightRadius = radius
+        this.bottomLeftRadius = radius
+        this.bottomRightRadius = radius
     }
 
     fun updateRadius(tl: Float, tr: Float, bl: Float, br: Float) {
@@ -25,42 +26,22 @@ class Radius {
 
     fun getRadiusArray(height: Float): FloatArray {
 
-        if (radius != 0f) {
-
-            val targetRadius = if (smoothCorner) {
-                height.div(2f)
-            } else {
-                radius * radiusWeight
-            }
-
-            return floatArrayOf(
-                    targetRadius,
-                    targetRadius,
-                    targetRadius,
-                    targetRadius,
-                    targetRadius,
-                    targetRadius,
-                    targetRadius,
-                    targetRadius
-            )
-        }
-
-        val targetTopLeftRadius = if (smoothCorner) {
+        val targetTopLeftRadius = if (radiusHalf) {
             height.div(2f)
         } else {
             topLeftRadius * radiusWeight
         }
-        val targetTopRightRadius = if (smoothCorner) {
+        val targetTopRightRadius = if (radiusHalf) {
             height.div(2f)
         } else {
             topRightRadius * radiusWeight
         }
-        val targetBottomLeftRadius = if (smoothCorner) {
+        val targetBottomLeftRadius = if (radiusHalf) {
             height.div(2f)
         } else {
             bottomLeftRadius * radiusWeight
         }
-        val targetBottomRightRadius = if (smoothCorner) {
+        val targetBottomRightRadius = if (radiusHalf) {
             height.div(2f)
         } else {
             bottomRightRadius * radiusWeight
@@ -79,22 +60,6 @@ class Radius {
     }
 
     fun getRadiusArray(): FloatArray {
-
-        if (radius != 0f) {
-
-            val targetRadius = radius * radiusWeight
-
-            return floatArrayOf(
-                targetRadius,
-                targetRadius,
-                targetRadius,
-                targetRadius,
-                targetRadius,
-                targetRadius,
-                targetRadius,
-                targetRadius
-            )
-        }
 
         val targetTopLeftRadius = topLeftRadius * radiusWeight
         val targetTopRightRadius = topRightRadius * radiusWeight
