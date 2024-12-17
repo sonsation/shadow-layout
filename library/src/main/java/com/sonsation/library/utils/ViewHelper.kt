@@ -62,8 +62,9 @@ object ViewHelper {
 
     fun parseShadowArray(context: Context, arrays: String?): List<Shadow>? {
 
-        if (arrays.isNullOrEmpty())
+        if (arrays.isNullOrEmpty()) {
             return null
+        }
 
         val list = mutableListOf<Shadow>()
         val split = arrays.split("},").map {
@@ -73,8 +74,9 @@ object ViewHelper {
             text.trim()
         }
 
-        if (split.isEmpty())
+        if (split.isEmpty()) {
             return null
+        }
 
         split.map { it.trim() }
 
@@ -82,29 +84,27 @@ object ViewHelper {
 
             val splitArray = it.split(",")
 
-            val shadow = Shadow().apply {
-                if (splitArray.size == 4) {
-                    try {
-                        val blurSize = splitArray[0].toFloat().toPx(context)
-                        val offsetX = splitArray[1].toFloat().toPx(context)
-                        val offsetY = splitArray[2].toFloat().toPx(context)
-                        val color = Color.parseColor(splitArray[3])
+            val shadow = if (splitArray.size == 4) {
+                try {
+                    val blurSize = splitArray[0].toFloat().toPx(context)
+                    val offsetX = splitArray[1].toFloat().toPx(context)
+                    val offsetY = splitArray[2].toFloat().toPx(context)
+                    val color = Color.parseColor(splitArray[3])
 
-                        Shadow(blurSize, color, offsetX, offsetY, 0f)
-                    } catch (e: NumberFormatException) {
-                        Shadow(0f, Color.WHITE, 0f, 0f, 0f)
-                    }
-                } else {
-                    try {
-                        val blurSize = splitArray[0].toFloat().toPx(context)
-                        val offsetX = splitArray[1].toFloat().toPx(context)
-                        val offsetY = splitArray[2].toFloat().toPx(context)
-                        val spread = splitArray[3].toFloat().toPx(context)
-                        val color = Color.parseColor(splitArray[4])
-                        Shadow(blurSize, color, offsetX, offsetY, spread)
-                    } catch (e: NumberFormatException) {
-                        Shadow(blurSize, Color.WHITE, 0f, 0f, 0f)
-                    }
+                    Shadow(blurSize, color, offsetX, offsetY, 0f)
+                } catch (e: NumberFormatException) {
+                    Shadow(0f, Color.WHITE, 0f, 0f, 0f)
+                }
+            } else {
+                try {
+                    val blurSize = splitArray[0].toFloat().toPx(context)
+                    val offsetX = splitArray[1].toFloat().toPx(context)
+                    val offsetY = splitArray[2].toFloat().toPx(context)
+                    val spread = splitArray[3].toFloat().toPx(context)
+                    val color = Color.parseColor(splitArray[4])
+                    Shadow(blurSize, color, offsetX, offsetY, spread)
+                } catch (e: NumberFormatException) {
+                    Shadow(0f, Color.WHITE, 0f, 0f, 0f)
                 }
             }
 
