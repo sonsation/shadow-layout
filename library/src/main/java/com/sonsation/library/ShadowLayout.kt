@@ -31,6 +31,10 @@ class ShadowLayout : FrameLayout {
         Path()
     }
 
+    private val layoutRect by lazy {
+        RectF()
+    }
+
     private var backgroundColor = ViewHelper.NOT_SET_COLOR
     private var backgroundBlur = 0f
     private var backgroundBlurType = BlurMaskFilter.Blur.NORMAL
@@ -209,9 +213,7 @@ class ShadowLayout : FrameLayout {
 
     override fun dispatchDraw(canvas: Canvas) {
 
-        val offset = RectF(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat())
-
-        setOutlineAndBackground(offset)
+        setOutlineAndBackground(layoutRect)
 
         shadows.forEach { shadow ->
             shadow.updatePath(outlineRect, radius)
@@ -237,6 +239,11 @@ class ShadowLayout : FrameLayout {
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
+
+        val width = abs(right - left).toFloat()
+        val height = abs(bottom - top).toFloat()
+
+        layoutRect.set(0f, 0f, width, height)
 
         for (i in 0 until childCount) {
             getChildAt(i)?.alpha = defaultAlpha
