@@ -5,53 +5,56 @@ import android.graphics.*
 import android.os.Build
 import android.util.AttributeSet
 import android.widget.FrameLayout
+import com.sonsation.library.effet.*
+import com.sonsation.library.utils.ViewHelper
+import kotlin.math.abs
 
 class ShadowLayout : FrameLayout {
 
-    private var mRadius = 0f
-    private var mTopLeftRadius = 0f
-    private var mTopRightRadius = 0f
-    private var mBottomLeftRadius = 0f
-    private var mBottomRightRadius = 0f
-    private var mBackgroundStrokeWidth = 0f
-    private var mBackgroundColor = -101
-    private var mBackgroundStrokeColor = -101
+    private val outlineRect by lazy {
+        RectF()
+    }
 
-    private var mFirstShadowEnable = false
-    private var mFirstShadowColor = -101
-    private var mFirstShadowOffsetX = 0f
-    private var mFirstShadowOffsetY = 0f
-    private var mFirstShadowBlur = 0f
+    private val outlinePaint by lazy {
+        Paint()
+    }
 
-    private var mSecondShadowEnable = false
-    private var mSecondShadowColor = -1
-    private var mSecondShadowOffsetX = 0f
-    private var mSecondShadowOffsetY = 0f
-    private var mSecondShadowBlur = 0f
-
-    private var enableGradient = false
-    private var mInnerGradientStartColor = -101
-    private var mInnerGradientCenterColor = -101
-    private var mInnerGradientEndColor = -101
-    private var mInnerGradientAngle = 0
-    private var mInnerGradientOffsetX = 0f
-    private var mInnerGradientOffsetY = 0f
+    private val outlinePath by lazy {
+        Path()
+    }
 
     private val backgroundPaint by lazy {
         Paint()
     }
-    private val strokePaint by lazy {
-        Paint()
-    }
-    private val innerGradientPaint by lazy {
-        Paint()
-    }
-    private val shadowPaint by lazy {
-        Paint()
+
+    private val backgroundPath by lazy {
+        Path()
     }
 
+    private val layoutRect by lazy {
+        RectF()
+    }
 
-    constructor(context: Context) : super(context)
+    private var backgroundColor = ViewHelper.NOT_SET_COLOR
+    private var backgroundBlur = 0f
+    private var backgroundBlurType = BlurMaskFilter.Blur.NORMAL
+
+    private var radius: Radius? = null
+    private var stroke: Stroke? = null
+    private var gradient: Gradient? = null
+    private var strokeGradient: Gradient? = null
+    private val shadows by lazy {
+        mutableListOf<Shadow>()
+    }
+
+    private var clipOutLine = true
+    private var isInitialized = false
+    private var defaultAlpha = 0f
+
+    constructor(context: Context) : super(context) {
+        init(context, null, 0)
+    }
+
     constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet) {
         init(context, attributeSet, 0)
     }
@@ -64,13 +67,17 @@ class ShadowLayout : FrameLayout {
         init(context, attributeSet, defStyleAttr)
     }
 
-    private fun init(context: Context, attributeSet: AttributeSet, defStyle: Int) {
-        initAttrsLayout(context, attributeSet, defStyle)
-        setWillNotDraw(false)
+    private fun init(context: Context, attributeSet: AttributeSet?, defStyle: Int) {
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
             setLayerType(LAYER_TYPE_SOFTWARE, null)
         }
+
+        if (attributeSet == null) {
+            return
+        }
+        
+        initAttrsLayout(context, attributeSet, defStyle)
     }
 
     private fun initAttrsLayout(context: Context, attributeSet: AttributeSet, defStyle: Int) {
@@ -78,374 +85,520 @@ class ShadowLayout : FrameLayout {
         val a = context.obtainStyledAttributes(attributeSet, R.styleable.ShadowLayout, defStyle, 0)
 
         try {
-            //default background settings
-            mRadius = a.getDimension(R.styleable.ShadowLayout_background_radius, 0f)
 
-            if (mRadius == 0f) {
-                mBottomLeftRadius = a.getDimension(R.styleable.ShadowLayout_background_radius, 0f)
-                mBottomRightRadius = a.getDimension(R.styleable.ShadowLayout_background_radius, 0f)
-                mTopLeftRadius = a.getDimension(R.styleable.ShadowLayout_background_radius, 0f)
-                mTopRightRadius = a.getDimension(R.styleable.ShadowLayout_background_radius, 0f)
+            clipOutLine = a.getBoolean(R.styleable.ShadowLayout_clipToOutline, true)
+            defaultAlpha = a.getFloat(R.styleable.ShadowLayout_android_alpha, 1f)
+
+            stroke = Stroke(
+                strokeColor =
+                a.getColor(R.styleable.ShadowLayout_stroke_color, ViewHelper.NOT_SET_COLOR),
+                strokeWidth = a.getDimension(R.styleable.ShadowLayout_stroke_width, 0f)
+            ).apply {
+                this.blurType = BlurMaskFilter.Blur.entries.find {
+                    it.ordinal == a.getInteger(R.styleable.ShadowLayout_stroke_blur_type, BlurMaskFilter.Blur.NORMAL.ordinal)
+                } ?: BlurMaskFilter.Blur.NORMAL
+                this.blur = a.getDimension(R.styleable.ShadowLayout_stroke_blur, 0f)
             }
 
-            mBackgroundColor = a.getColor(
-                R.styleable.ShadowLayout_background_color,
-                -1
+            val allRadius = a.getDimension(R.styleable.ShadowLayout_background_radius, 0f)
+            val radiusHalf = a.getBoolean(R.styleable.ShadowLayout_background_radius_half, false)
+            val radiusWeight = a.getFloat(R.styleable.ShadowLayout_background_radius_weight, 1f)
+
+            radius = if (allRadius == 0f) {
+                val topLeftRadius =
+                    a.getDimension(R.styleable.ShadowLayout_background_top_left_radius, 0f)
+                val topRightRadius =
+                    a.getDimension(R.styleable.ShadowLayout_background_top_right_radius, 0f)
+                val bottomLeftRadius =
+                    a.getDimension(R.styleable.ShadowLayout_background_bottom_left_radius, 0f)
+                val bottomRightRadius =
+                    a.getDimension(R.styleable.ShadowLayout_background_bottom_right_radius, 0f)
+
+                Radius(topLeftRadius, topRightRadius, bottomLeftRadius, bottomRightRadius).apply {
+                    this.radiusHalf = radiusHalf
+                    this.radiusWeight = radiusWeight
+                }
+            } else {
+                Radius(allRadius).apply {
+                    this.radiusHalf = radiusHalf
+                    this.radiusWeight = radiusWeight
+                }
+            }
+
+            gradient = Gradient(
+                gradientStartColor = a.getColor(
+                    R.styleable.ShadowLayout_gradient_start_color,
+                    ViewHelper.NOT_SET_COLOR
+                ),
+                gradientCenterColor = a.getColor(
+                    R.styleable.ShadowLayout_gradient_center_color,
+                    ViewHelper.NOT_SET_COLOR
+                ),
+                gradientEndColor = a.getColor(
+                    R.styleable.ShadowLayout_gradient_end_color,
+                    ViewHelper.NOT_SET_COLOR
+                ),
+                gradientAngle = a.getInt(R.styleable.ShadowLayout_gradient_angle, -1),
+                gradientOffsetX = a.getDimension(R.styleable.ShadowLayout_gradient_offset_x, 0f),
+                gradientOffsetY = a.getDimension(R.styleable.ShadowLayout_gradient_offset_y, 0f),
+                gradientArray = ViewHelper.parseGradientArray(a.getString(R.styleable.ShadowLayout_gradient_array))
+                    ?.toIntArray(),
+                gradientPositions = ViewHelper.parseGradientPositions(a.getString(R.styleable.ShadowLayout_gradient_positions))
+                    ?.toFloatArray()
             )
 
-            //stroke settings
-            mBackgroundStrokeColor = a.getColor(
-                R.styleable.ShadowLayout_background_stroke_color,
-                -101
+            strokeGradient = Gradient(
+                gradientStartColor = a.getColor(
+                    R.styleable.ShadowLayout_stroke_gradient_start_color,
+                    ViewHelper.NOT_SET_COLOR
+                ),
+                gradientCenterColor = a.getColor(
+                    R.styleable.ShadowLayout_stroke_gradient_center_color,
+                    ViewHelper.NOT_SET_COLOR
+                ),
+                gradientEndColor = a.getColor(
+                    R.styleable.ShadowLayout_stroke_gradient_end_color,
+                    ViewHelper.NOT_SET_COLOR
+                ),
+                gradientAngle = a.getInt(R.styleable.ShadowLayout_stroke_gradient_angle, -1),
+                gradientOffsetX = a.getDimension(
+                    R.styleable.ShadowLayout_stroke_gradient_offset_x,
+                    0f
+                ),
+                gradientOffsetY = a.getDimension(
+                    R.styleable.ShadowLayout_stroke_gradient_offset_y,
+                    0f
+                ),
+                gradientArray = ViewHelper.parseGradientArray(a.getString(R.styleable.ShadowLayout_gradient_array))
+                    ?.toIntArray(),
+                gradientPositions = ViewHelper.parseGradientPositions(a.getString(R.styleable.ShadowLayout_gradient_positions))
+                    ?.toFloatArray()
             )
-            mBackgroundStrokeWidth =
-                a.getDimension(R.styleable.ShadowLayout_background_stroke_width, 0f)
 
-            //first shadow settings
-            mFirstShadowEnable = a.getBoolean(R.styleable.ShadowLayout_first_shadow_enable, false)
-            mFirstShadowColor = a.getColor(
-                R.styleable.ShadowLayout_first_shadow_color,
-                -1
-            )
-            mFirstShadowOffsetX = a.getDimension(R.styleable.ShadowLayout_first_shadow_offset_x, 0f)
-            mFirstShadowOffsetY = a.getDimension(R.styleable.ShadowLayout_first_shadow_offset_y, 0f)
-            mFirstShadowBlur = a.getDimension(R.styleable.ShadowLayout_first_shadow_blur, 0f)
+            backgroundColor = if (a.hasValue(R.styleable.ShadowLayout_background_color)) {
+                a.getColor(
+                    R.styleable.ShadowLayout_background_color,
+                    Color.parseColor("#ffffffff")
+                )
+            } else {
+                Color.parseColor("#ffffffff")
+            }
 
-            //second shadow settings
-            mSecondShadowEnable = a.getBoolean(R.styleable.ShadowLayout_second_shadow_enable, false)
-            mSecondShadowColor = a.getColor(
-                R.styleable.ShadowLayout_second_shadow_color,
-                -101
-            )
-            mSecondShadowOffsetX =
-                a.getDimension(R.styleable.ShadowLayout_second_shadow_offset_x, 0f)
-            mSecondShadowOffsetY =
-                a.getDimension(R.styleable.ShadowLayout_second_shadow_offset_y, 0f)
-            mSecondShadowBlur = a.getDimension(R.styleable.ShadowLayout_second_shadow_blur, 0f)
+            backgroundBlur = a.getDimension(R.styleable.ShadowLayout_background_blur, 0f)
 
-            //inner gradient settings
-            enableGradient = a.getBoolean(R.styleable.ShadowLayout_inner_gradient_enable, false)
-            mInnerGradientAngle = a.getInt(R.styleable.ShadowLayout_inner_gradient_angle, 0)
-            mInnerGradientOffsetX =
-                a.getDimension(R.styleable.ShadowLayout_inner_gradient_offset_x, 0f)
-            mInnerGradientOffsetY =
-                a.getDimension(R.styleable.ShadowLayout_inner_gradient_offset_y, 0f)
-            mInnerGradientStartColor = a.getColor(
-                R.styleable.ShadowLayout_inner_gradient_start_color,
-                -101
+            backgroundBlurType = BlurMaskFilter.Blur.entries.find {
+                it.ordinal == a.getInteger(R.styleable.ShadowLayout_background_blur_type, BlurMaskFilter.Blur.NORMAL.ordinal)
+            } ?: BlurMaskFilter.Blur.NORMAL
+
+            val shadow = Shadow(
+                blurSize = a.getDimension(R.styleable.ShadowLayout_shadow_blur, 0f),
+                shadowColor = a.getColor(R.styleable.ShadowLayout_shadow_color, ViewHelper.NOT_SET_COLOR),
+                shadowOffsetX = a.getDimension(R.styleable.ShadowLayout_shadow_offset_x, 0f),
+                shadowOffsetY = a.getDimension(R.styleable.ShadowLayout_shadow_offset_y, 0f),
+                shadowSpread = a.getDimension(R.styleable.ShadowLayout_shadow_spread, 0f)
             )
-            mInnerGradientCenterColor = a.getColor(
-                R.styleable.ShadowLayout_inner_gradient_start_color,
-                -101
-            )
-            mInnerGradientEndColor = a.getColor(
-                R.styleable.ShadowLayout_inner_gradient_end_color,
-                -101
-            )
+
+            shadows.add(shadow)
+
+            val shadows = ViewHelper.parseShadowArray(context, a.getString(R.styleable.ShadowLayout_shadow_array))
+
+            if (!shadows.isNullOrEmpty()) {
+                this.shadows.addAll(shadows)
+            }
         } finally {
             a.recycle()
+            isInitialized = true
         }
     }
 
-    override fun onDraw(canvas: Canvas?) {
-        super.onDraw(canvas)
+    override fun dispatchDraw(canvas: Canvas) {
 
-        if (canvas == null)
-            return
+        setOutlineAndBackground(layoutRect)
 
-        if (mSecondShadowEnable) {
-            drawBackgroundShadow(
-                canvas,
-                mSecondShadowOffsetX,
-                mSecondShadowOffsetY,
-                mSecondShadowBlur,
-                mSecondShadowColor
-            )
-        }
+        shadows.forEach { shadow ->
+            shadow.updatePath(outlineRect, radius)
+            shadow.updatePaint(defaultAlpha)
 
-        if (mFirstShadowEnable) {
-            drawBackgroundShadow(
-                canvas,
-                mFirstShadowOffsetX,
-                mFirstShadowOffsetY,
-                mFirstShadowBlur,
-                mFirstShadowColor
-            )
-        }
-
-        drawBackground(canvas)
-        drawInnerGradient(canvas)
-    }
-
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        updatePadding()
-    }
-
-    private fun updatePadding() {
-        if (mBackgroundStrokeWidth != 0f) {
-            val padding = mBackgroundStrokeWidth.toInt()
-            setPadding(padding, padding, padding, padding)
-        }
-    }
-
-    private fun drawBackground(canvas: Canvas?) {
-
-        if (canvas == null || canvas.height == 0 || canvas.width == 0)
-            return
-
-        backgroundPaint.apply {
-            isAntiAlias = true
-
-            color = if (!enableGradient) {
-                mBackgroundColor
-            } else {
-                Color.TRANSPARENT
+            if (shadow.isEnable) {
+                canvas.drawPath(shadow.path, shadow.paint)
             }
         }
 
-        val backgroundPath = Path().apply {
-
-            val offsetLeft = 0f + mBackgroundStrokeWidth / 2
-            val offsetRight = canvas.width.toFloat() - mBackgroundStrokeWidth / 2
-            val offsetTop = 0f
-            val offsetBottom = canvas.height.toFloat()
-
-            val backgroundRect = RectF(offsetLeft, offsetTop, offsetRight, offsetBottom)
-            addRoundRect(backgroundRect, getRadiusArray(), Path.Direction.CW)
-        }
-
+        canvas.save()
+        canvas.clipPath(outlinePath)
         canvas.drawPath(backgroundPath, backgroundPaint)
+        canvas.restore()
+        canvas.drawPath(outlinePath, outlinePaint)
 
-        if (mBackgroundStrokeWidth != 0f && mBackgroundStrokeColor != -101) {
+        if (clipOutLine) {
+            canvas.clipPath(outlinePath)
+        }
 
-            if (mBackgroundStrokeWidth > (canvas.width / 2) || mBackgroundStrokeWidth > (canvas.height / 2)) {
-                mBackgroundStrokeWidth = dpToPx(1f)
-            }
+        super.dispatchDraw(canvas)
+    }
 
-            strokePaint.apply {
-                isAntiAlias = true
-                color = mBackgroundStrokeColor
-                strokeWidth = mBackgroundStrokeWidth
-                strokeCap = Paint.Cap.ROUND
-                style = Paint.Style.STROKE
-            }
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
 
-            val strokePath = Path().apply {
+        val width = abs(right - left).toFloat()
+        val height = abs(bottom - top).toFloat()
 
-                val strokeMargin = mBackgroundStrokeWidth / 2
-                val offsetRight = canvas.width.toFloat() - strokeMargin
-                val offsetBottom = canvas.height.toFloat() - strokeMargin
+        layoutRect.set(0f, 0f, width, height)
 
-                val strokeRect = RectF(strokeMargin, strokeMargin, offsetRight, offsetBottom)
-
-                addRoundRect(strokeRect, getRadiusArray(), Path.Direction.CW)
-            }
-            canvas.drawPath(strokePath, strokePaint)
+        for (i in 0 until childCount) {
+            getChildAt(i)?.alpha = defaultAlpha
         }
     }
 
-    private fun drawInnerGradient(canvas: Canvas?) {
+    override fun setAlpha(alpha: Float) {
 
-        if (canvas == null || canvas.height == 0 || canvas.width == 0)
+        if (!isInitialized) {
             return
-
-        if (!enableGradient)
-            return
-
-        val strokeMargin = mBackgroundStrokeWidth / 2
-        val offsetRight = if (canvas.width - strokeMargin < 0) {
-            0f
-        } else {
-            canvas.width - strokeMargin
-        }
-        val offsetBottom = if (canvas.height - strokeMargin < 0) {
-            0f
-        } else {
-            canvas.height - strokeMargin
         }
 
-        innerGradientPaint.apply {
-            isAntiAlias = true
-            shader = getGradientShader(strokeMargin, strokeMargin, offsetRight, offsetBottom)
+        defaultAlpha = alpha
+
+        invalidate()
+
+        for (i in 0 until childCount) {
+            getChildAt(i)?.alpha = alpha
         }
-
-        val path = Path().apply {
-            val innerGradientRect = RectF(strokeMargin, strokeMargin, offsetRight, offsetBottom)
-
-            addRoundRect(innerGradientRect, getRadiusArray(), Path.Direction.CW)
-        }
-
-        canvas.drawPath(path, innerGradientPaint)
     }
 
-    private fun drawBackgroundShadow(
-        canvas: Canvas?,
-        dx: Float,
-        dy: Float,
+    override fun getAlpha(): Float {
+        return defaultAlpha
+    }
+
+    fun updateBackgroundColor(color: Int) {
+        backgroundColor = color
+        invalidate()
+    }
+
+    fun updateRadius(radius: Float) {
+        this.radius?.updateRadius(radius)
+        invalidate()
+    }
+
+    fun updateRadius(topLeft: Float, topRight: Float, bottomLeft: Float, bottomRight: Float) {
+        this.radius?.updateRadius(topLeft, topRight, bottomLeft, bottomRight)
+        invalidate()
+    }
+
+    fun addBackgroundShadow(blurSize: Float, offsetX: Float, offsetY: Float, shadowColor: Int) {
+        val shadow = Shadow(blurSize, shadowColor, offsetX, offsetY, 0f)
+        shadows.add(shadow)
+        invalidate()
+    }
+
+    fun addBackgroundShadow(
         blurSize: Float,
+        offsetX: Float,
+        offsetY: Float,
+        spread: Float,
         shadowColor: Int
     ) {
-
-        if (canvas == null || canvas.height == 0 || canvas.width == 0)
-            return
-
-        shadowPaint.apply {
-            color = shadowColor
-            isAntiAlias = true
-            maskFilter = BlurMaskFilter(blurSize, BlurMaskFilter.Blur.NORMAL)
-        }
-
-        val path = Path().apply {
-
-            val offsetLeft = dx
-            val offsetRight = canvas.width.toFloat() + dx
-            val offsetTop = dy
-            val offsetBottom = canvas.height.toFloat() + dy
-
-            val shadowRect = RectF(offsetLeft, offsetTop, offsetRight, offsetBottom)
-            addRoundRect(shadowRect, getRadiusArray(), Path.Direction.CW)
-        }
-
-        canvas.drawPath(path, shadowPaint)
+        val shadow = Shadow(blurSize, shadowColor, offsetX, offsetY, spread)
+        shadows.add(shadow)
+        invalidate()
     }
 
-    private fun getGradientShader(
-        left: Float,
-        top: Float,
-        right: Float,
-        bottom: Float
-    ): LinearGradient {
-
-        val colors = if (mInnerGradientCenterColor == -1) {
-            intArrayOf(mInnerGradientStartColor, mInnerGradientEndColor)
-        } else {
-            intArrayOf(mInnerGradientStartColor, mInnerGradientCenterColor, mInnerGradientEndColor)
-        }
-
-        if (mInnerGradientAngle < 0) {
-            val trueAngle = mInnerGradientAngle % 360
-            mInnerGradientAngle = trueAngle + 360
-        }
-
-        val trueAngle = mInnerGradientAngle % 360
-
-        val width = right - left
-        val height = bottom - top
-
-        return when (trueAngle / 45) {
-            0 -> {
-                val x = right + mInnerGradientOffsetX
-                LinearGradient(x, 0f, left, 0f, colors, null, Shader.TileMode.CLAMP)
-            }
-            1 -> {
-                val x = right + mInnerGradientOffsetX
-                val y = top + mInnerGradientOffsetY
-                LinearGradient(x, top, left, y, colors, null, Shader.TileMode.CLAMP)
-            }
-            2 -> {
-                val y = top + mInnerGradientOffsetY
-                LinearGradient(0f, y, 0f, bottom, colors, null, Shader.TileMode.CLAMP)
-            }
-            3 -> {
-                val x = width + mInnerGradientOffsetX
-                val y = (height * 2) + mInnerGradientOffsetY
-                LinearGradient(0f, y, x, bottom, colors, null, Shader.TileMode.CLAMP)
-            }
-            4 -> {
-                val y = bottom + mInnerGradientOffsetY
-                LinearGradient(0f, y, 0f, 0f, colors, null, Shader.TileMode.CLAMP)
-            }
-            5 -> {
-                val x = right + mInnerGradientOffsetX
-                val y = top + mInnerGradientOffsetY
-                LinearGradient(0f, y, x, top, colors, null, Shader.TileMode.CLAMP)
-            }
-            6 -> {
-                val x = top + mInnerGradientOffsetX
-                LinearGradient(x, 0f, right, 0f, colors, null, Shader.TileMode.CLAMP)
-            }
-            else -> {
-                val x = right + mInnerGradientOffsetX
-                val y = top + mInnerGradientOffsetY
-                LinearGradient(0f, y, x, bottom, colors, null, Shader.TileMode.CLAMP)
-            }
-        }
+    fun removeBackgroundShadowLast() {
+        shadows.removeLastOrNull()
+        invalidate()
     }
 
-    private fun getRadiusArray(): FloatArray {
+    fun removeBackgroundShadowFirst() {
+        shadows.removeFirstOrNull()
+        invalidate()
+    }
 
-        if (mRadius != 0f) {
-            return floatArrayOf(
-                mRadius,
-                mRadius,
-                mRadius,
-                mRadius,
-                mRadius,
-                mRadius,
-                mRadius,
-                mRadius
+    fun removeAllBackgroundShadows() {
+        shadows.clear()
+        invalidate()
+    }
+
+    fun removeBackgroundShadow(position: Int) {
+        shadows.removeAt(position)
+        invalidate()
+    }
+
+    fun updateBackgroundShadow(position: Int, shadow: Shadow) {
+        shadows[position] = shadow
+        invalidate()
+    }
+
+    fun updateBackgroundShadow(
+        position: Int,
+        blurSize: Float,
+        offsetX: Float,
+        offsetY: Float,
+        color: Int
+    ) {
+        shadows[position].apply {
+            this.blurSize = blurSize
+            this.shadowColor = color
+            this.shadowOffsetX = offsetX
+            this.shadowOffsetY = offsetY
+        }
+        invalidate()
+    }
+
+    fun updateBackgroundShadow(
+        position: Int,
+        blurSize: Float,
+        offsetX: Float,
+        offsetY: Float,
+        spread: Float,
+        color: Int
+    ) {
+        shadows[position].apply {
+            this.blurSize = blurSize
+            this.shadowColor = color
+            this.shadowOffsetX = offsetX
+            this.shadowOffsetY = offsetY
+            this.shadowSpread = spread
+        }
+        invalidate()
+    }
+
+    fun updateBackgroundShadow(shadow: Shadow) {
+        updateBackgroundShadow(0, shadow)
+    }
+
+    fun updateBackgroundShadow(blurSize: Float, offsetX: Float, offsetY: Float, color: Int) {
+        updateBackgroundShadow(0, blurSize, offsetX, offsetY, color)
+    }
+
+    fun updateBackgroundShadow(
+        blurSize: Float,
+        offsetX: Float,
+        offsetY: Float,
+        spread: Float,
+        color: Int
+    ) {
+        updateBackgroundShadow(0, blurSize, offsetX, offsetY, spread, color)
+    }
+
+    fun updateStrokeWidth(strokeWidth: Float) {
+        stroke?.updateStrokeWidth(strokeWidth)
+        invalidate()
+    }
+
+    fun updateStrokeColor(color: Int) {
+        stroke?.updateStrokeColor(color)
+        invalidate()
+    }
+
+    fun updateGradientColor(startColor: Int, centerColor: Int, endColor: Int) {
+        this.gradient?.updateGradientColor(startColor, centerColor, endColor)
+        invalidate()
+    }
+
+    fun updateGradientColor(startColor: Int, endColor: Int) {
+        this.gradient?.updateGradientColor(startColor, endColor)
+        invalidate()
+    }
+
+    fun updateGradientAngle(angle: Int) {
+        this.gradient?.updateGradientAngle(angle)
+        invalidate()
+    }
+
+    fun updateLocalMatrix(matrix: Matrix?) {
+        this.gradient?.updateLocalMatrix(matrix)
+        invalidate()
+    }
+
+    fun updateGradientOffsetX(offset: Float) {
+        this.gradient?.updateGradientOffsetX(offset)
+        invalidate()
+    }
+
+    fun updateGradientOffsetY(offset: Float) {
+        this.gradient?.updateGradientOffsetY(offset)
+        invalidate()
+    }
+
+    fun updateStrokeGradientColor(startColor: Int, centerColor: Int, endColor: Int) {
+        this.strokeGradient?.updateGradientColor(startColor, centerColor, endColor)
+        invalidate()
+    }
+
+    fun updateStrokeGradientColor(startColor: Int, endColor: Int) {
+        this.strokeGradient?.updateGradientColor(startColor, endColor)
+        invalidate()
+    }
+
+    fun updateStrokeGradientAngle(angle: Int) {
+        this.strokeGradient?.updateGradientAngle(angle)
+        invalidate()
+    }
+
+    fun updateStrokeLocalMatrix(matrix: Matrix?) {
+        this.strokeGradient?.updateLocalMatrix(matrix)
+        invalidate()
+    }
+
+    fun updateStrokeGradientOffsetX(offset: Float) {
+        this.strokeGradient?.updateGradientOffsetX(offset)
+        invalidate()
+    }
+
+    fun updateStrokeGradientOffsetY(offset: Float) {
+        this.strokeGradient?.updateGradientOffsetY(offset)
+        invalidate()
+    }
+
+    fun updateBackgroundRadiusHalf(enable: Boolean) {
+        this.radius?.radiusHalf = enable
+        invalidate()
+    }
+
+    fun updateBackgroundBlur(blur: Float) {
+        this.backgroundBlur = blur
+        invalidate()
+    }
+
+    fun updateBackgroundBlurType(blurType: BlurMaskFilter.Blur) {
+        this.backgroundBlurType = blurType
+        invalidate()
+    }
+
+    fun updateStrokeBlur(blur: Float) {
+        this.stroke?.blur = blur
+        invalidate()
+    }
+
+    fun updateStrokeBlurType(blurType: BlurMaskFilter.Blur) {
+        this.stroke?.blurType = blurType
+        invalidate()
+    }
+
+    fun getGradientInfo(): Gradient? {
+        return this.gradient
+    }
+
+    fun getRadiusInfo(): Radius? {
+        return this.radius
+    }
+
+    fun getStrokeInfo(): Stroke? {
+        return this.stroke
+    }
+
+    fun setOutlineAndBackground(offset: RectF) {
+
+        val calStrokeWidth = stroke?.takeIf { it.isEnable }?.strokeWidth?.div(2f) ?: 0f
+
+        this.outlineRect.set(
+            RectF(
+                offset.left - calStrokeWidth,
+                offset.top - calStrokeWidth,
+                offset.right + calStrokeWidth,
+                offset.bottom + calStrokeWidth
             )
+        )
+
+        with(outlinePaint) {
+
+            isAntiAlias = true
+
+            if (stroke?.isEnable == true) {
+                style = Paint.Style.STROKE
+                color = stroke!!.strokeColor
+                outlinePaint.strokeWidth = stroke!!.strokeWidth
+                shader = if (strokeGradient?.isEnable == true) {
+                    strokeGradient?.getGradientShader(
+                        outlineRect.left,
+                        outlineRect.top,
+                        outlineRect.right,
+                        outlineRect.bottom
+                    )
+                } else {
+                    null
+                }
+
+                if (stroke!!.blur != 0f) {
+                    maskFilter = BlurMaskFilter(stroke!!.blur, stroke!!.blurType)
+                } else {
+                    maskFilter = null
+                }
+
+                if (ViewHelper.onSetAlphaFromColor(defaultAlpha, stroke!!.strokeColor)) {
+                    alpha = ViewHelper.getIntAlpha(defaultAlpha)
+                }
+            } else {
+                color = backgroundColor
+                strokeWidth = 0f
+                style = Paint.Style.FILL
+
+                shader = if (gradient?.isEnable == true) {
+                    gradient?.getGradientShader(
+                        offset.left,
+                        offset.top,
+                        offset.right,
+                        offset.bottom
+                    )
+                } else {
+                    null
+                }
+
+                if (ViewHelper.onSetAlphaFromColor(defaultAlpha, backgroundColor)) {
+                    alpha = ViewHelper.getIntAlpha(defaultAlpha)
+                }
+
+                if (backgroundBlur != 0f) {
+                    maskFilter = BlurMaskFilter(backgroundBlur, backgroundBlurType)
+                } else {
+                    maskFilter = null
+                }
+            }
         }
 
-        return floatArrayOf(
-            mTopLeftRadius,
-            mTopLeftRadius,
-            mTopRightRadius,
-            mTopRightRadius,
-            mBottomLeftRadius,
-            mBottomLeftRadius,
-            mBottomRightRadius,
-            mBottomRightRadius
-        )
-    }
+        with(backgroundPaint) {
+            isAntiAlias = true
+            color = backgroundColor
+            style = Paint.Style.FILL
 
-    private fun dpToPx(dp: Float): Float {
-        return resources.displayMetrics.density * dp
-    }
+            shader = if (gradient?.isEnable == true) {
+                gradient?.getGradientShader(
+                    offset.left + calStrokeWidth,
+                    offset.top + calStrokeWidth,
+                    offset.right - calStrokeWidth,
+                    offset.bottom - calStrokeWidth
+                )
+            } else {
+                null
+            }
 
-    fun setRadius(radius: Float) {
-        this.mRadius = radius
-        postInvalidate()
-    }
+            if (backgroundBlur != 0f) {
+                maskFilter = BlurMaskFilter(backgroundBlur, backgroundBlurType)
+            } else {
+                maskFilter = null
+            }
 
-    fun setTopLeftRadius(radius: Float) {
-        this.mTopLeftRadius = radius
-        postInvalidate()
-    }
+            if (ViewHelper.onSetAlphaFromColor(defaultAlpha, backgroundColor)) {
+                alpha = ViewHelper.getIntAlpha(defaultAlpha)
+            }
+        }
 
-    fun setTopRightRadius(radius: Float) {
-        this.mTopRightRadius = radius
-        postInvalidate()
-    }
+        outlinePath.apply {
+            reset()
 
-    fun setBottomLeftRadius(radius: Float) {
-        this.mBottomLeftRadius = radius
-        postInvalidate()
-    }
+            if (radius == null) {
+                addRect(offset, Path.Direction.CW)
+            } else {
+                val height = offset.height()
+                addRoundRect(offset, radius!!.getRadiusArray(height), Path.Direction.CW)
+            }
 
-    fun setBottomRightRadius(radius: Float) {
-        this.mBottomRightRadius = radius
-        postInvalidate()
-    }
+            close()
+        }
 
-    fun setStrokeWidth(width: Float) {
-        this.mBackgroundStrokeWidth = width
-        postInvalidate()
-    }
-
-    override fun setBackgroundColor(color: Int) {
-        this.mBackgroundColor = color
-        postInvalidate()
-    }
-
-    fun setBackgroundStrokeColor(color: Int) {
-        this.mBackgroundStrokeColor = color
-        postInvalidate()
-    }
-
-    fun setBackgroundStrokeWidth(width: Float) {
-        this.mBackgroundStrokeWidth = width
-        postInvalidate()
+        backgroundPath.apply {
+            reset()
+            addRect(offset, Path.Direction.CW)
+            close()
+        }
     }
 }
