@@ -504,8 +504,13 @@ class ShadowLayout : FrameLayout {
             isAntiAlias = true
 
             if (stroke?.isEnable == true) {
+                val targetColor = if (strokeGradient?.isEnable == true) {
+                    Color.WHITE
+                } else {
+                    stroke!!.strokeColor
+                }
                 style = Paint.Style.STROKE
-                color = stroke!!.strokeColor
+                color = targetColor
                 outlinePaint.strokeWidth = stroke!!.strokeWidth
                 shader = if (strokeGradient?.isEnable == true) {
                     strokeGradient?.getGradientShader(
@@ -524,11 +529,16 @@ class ShadowLayout : FrameLayout {
                     maskFilter = null
                 }
 
-                if (ViewHelper.onSetAlphaFromColor(defaultAlpha, stroke!!.strokeColor)) {
+                if (ViewHelper.onSetAlphaFromColor(defaultAlpha, targetColor)) {
                     alpha = ViewHelper.getIntAlpha(defaultAlpha)
                 }
             } else {
-                color = backgroundColor
+                val targetColor = if (gradient?.isEnable == true) {
+                    Color.WHITE
+                } else {
+                    backgroundColor
+                }
+                color = targetColor
                 strokeWidth = 0f
                 style = Paint.Style.FILL
 
@@ -543,21 +553,26 @@ class ShadowLayout : FrameLayout {
                     null
                 }
 
-                if (ViewHelper.onSetAlphaFromColor(defaultAlpha, backgroundColor)) {
-                    alpha = ViewHelper.getIntAlpha(defaultAlpha)
-                }
-
                 if (backgroundBlur != 0f) {
                     maskFilter = BlurMaskFilter(backgroundBlur, backgroundBlurType)
                 } else {
                     maskFilter = null
                 }
+
+                if (ViewHelper.onSetAlphaFromColor(defaultAlpha, targetColor)) {
+                    alpha = ViewHelper.getIntAlpha(defaultAlpha)
+                }
             }
         }
 
         with(backgroundPaint) {
+            val targetColor = if (gradient?.isEnable == true) {
+                Color.WHITE
+            } else {
+                backgroundColor
+            }
             isAntiAlias = true
-            color = backgroundColor
+            color = targetColor
             style = Paint.Style.FILL
 
             shader = if (gradient?.isEnable == true) {
@@ -577,7 +592,7 @@ class ShadowLayout : FrameLayout {
                 maskFilter = null
             }
 
-            if (ViewHelper.onSetAlphaFromColor(defaultAlpha, backgroundColor)) {
+            if (ViewHelper.onSetAlphaFromColor(defaultAlpha, targetColor)) {
                 alpha = ViewHelper.getIntAlpha(defaultAlpha)
             }
         }
