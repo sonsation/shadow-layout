@@ -65,6 +65,54 @@
                 app:background_color="#999999"
                 app:background_radius="24dp">
 
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="Alpha"
+                        android:textColor="#000000"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <SeekBar
+                        android:id="@+id/alpha_seekbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="20dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/x_title" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/alpha_value"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="0dp"
+                        android:textColor="#000000"
+                        android:textSize="14sp"
+                        android:gravity="center" />
+
+                </androidx.appcompat.widget.LinearLayoutCompat>
+
+            </com.sonsation.library.ShadowLayout>
+
+            <com.sonsation.library.ShadowLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                app:background_color="#999999"
+                app:background_radius="24dp">
+
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">

@@ -399,5 +399,25 @@ class MainActivity : AppCompatActivity() {
                 }
             })
         }
+
+        bind.alphaSeekbar.apply {
+            min = 0
+            max = 100
+            setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    val value = progress.div(100f)
+                    shadowLayout.alpha = value
+                    bind.alphaValue.text = "${value}"
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+                }
+            })
+        }
     }
 }
