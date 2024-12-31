@@ -81,6 +81,10 @@ class Gradient(
                 val y = offsetTop + gradientOffsetY
                 LinearGradient(0f, y, x, offsetBottom, colors, gradientPositions, Shader.TileMode.CLAMP)
             }
+        }.apply {
+            if (localMatrix != null) {
+                setLocalMatrix(localMatrix)
+            }
         }
     }
 
