@@ -2,9 +2,13 @@ package com.sonsation.library.utils
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Path
+import android.graphics.PathMeasure
+import android.graphics.RectF
 import com.sonsation.library.effet.*
 import com.sonsation.library.model.ARGB
 import java.lang.NumberFormatException
+import kotlin.math.sqrt
 
 object ViewHelper {
 
@@ -153,5 +157,54 @@ object ViewHelper {
         }
 
         return (255 * alpha).toInt()
+    }
+
+    fun Path.getInnerPath(strokeWidth: Float): Path {
+
+        val offset = strokeWidth / 2
+        val rect = RectF().apply {
+            computeBounds(this, true)
+            inset(offset, offset)
+        }
+        val pathMeasure = PathMeasure(this, false)
+
+        return Path().apply {
+
+            for (distance in 0 until pathMeasure.length.toInt()) {
+
+                val pos = FloatArray(2)
+                val tan = FloatArray(2)
+
+                pathMeasure.getPosTan(distance.toFloat(), pos, tan)
+
+                val dx = tan[0]
+                val dy = tan[1]
+
+                var normalX = -dy
+                var normalY = dx
+
+                val lengthNormal = sqrt((normalX * normalX + normalY * normalY).toDouble()).toFloat()
+
+                normalX /= lengthNormal
+                normalY /= lengthNormal
+
+                val innerX = pos[0] + normalX * offset
+                val innerY = pos[1] + normalY * offset
+
+                if (innerX < rect.left || innerX > rect.right) {
+                    continue
+                }
+
+                if (innerY < rect.top || innerY > rect.bottom) {
+                    continue
+                }
+
+                if (distance == 0) {
+                    moveTo(innerX, innerY)
+                } else {
+                    lineTo(innerX, innerY)
+                }
+            }
+        }
     }
 }

@@ -7,7 +7,9 @@ import android.util.AttributeSet
 import android.widget.FrameLayout
 import com.sonsation.library.effet.*
 import com.sonsation.library.utils.ViewHelper
+import com.sonsation.library.utils.ViewHelper.getInnerPath
 import kotlin.math.abs
+
 
 class ShadowLayout : FrameLayout {
 
@@ -95,7 +97,10 @@ class ShadowLayout : FrameLayout {
                 strokeWidth = a.getDimension(R.styleable.ShadowLayout_stroke_width, 0f)
             ).apply {
                 this.blurType = BlurMaskFilter.Blur.entries.find {
-                    it.ordinal == a.getInteger(R.styleable.ShadowLayout_stroke_blur_type, BlurMaskFilter.Blur.NORMAL.ordinal)
+                    it.ordinal == a.getInteger(
+                        R.styleable.ShadowLayout_stroke_blur_type,
+                        BlurMaskFilter.Blur.NORMAL.ordinal
+                    )
                 } ?: BlurMaskFilter.Blur.NORMAL
                 this.blur = a.getDimension(R.styleable.ShadowLayout_stroke_blur, 0f)
             }
@@ -187,12 +192,18 @@ class ShadowLayout : FrameLayout {
             backgroundBlur = a.getDimension(R.styleable.ShadowLayout_background_blur, 0f)
 
             backgroundBlurType = BlurMaskFilter.Blur.entries.find {
-                it.ordinal == a.getInteger(R.styleable.ShadowLayout_background_blur_type, BlurMaskFilter.Blur.NORMAL.ordinal)
+                it.ordinal == a.getInteger(
+                    R.styleable.ShadowLayout_background_blur_type,
+                    BlurMaskFilter.Blur.NORMAL.ordinal
+                )
             } ?: BlurMaskFilter.Blur.NORMAL
 
             val shadow = Shadow(
                 blurSize = a.getDimension(R.styleable.ShadowLayout_shadow_blur, 0f),
-                shadowColor = a.getColor(R.styleable.ShadowLayout_shadow_color, ViewHelper.NOT_SET_COLOR),
+                shadowColor = a.getColor(
+                    R.styleable.ShadowLayout_shadow_color,
+                    ViewHelper.NOT_SET_COLOR
+                ),
                 shadowOffsetX = a.getDimension(R.styleable.ShadowLayout_shadow_offset_x, 0f),
                 shadowOffsetY = a.getDimension(R.styleable.ShadowLayout_shadow_offset_y, 0f),
                 shadowSpread = a.getDimension(R.styleable.ShadowLayout_shadow_spread, 0f)
@@ -200,7 +211,10 @@ class ShadowLayout : FrameLayout {
 
             shadows.add(shadow)
 
-            val shadows = ViewHelper.parseShadowArray(context, a.getString(R.styleable.ShadowLayout_shadow_array))
+            val shadows = ViewHelper.parseShadowArray(
+                context,
+                a.getString(R.styleable.ShadowLayout_shadow_array)
+            )
 
             if (!shadows.isNullOrEmpty()) {
                 this.shadows.addAll(shadows)
@@ -224,11 +238,11 @@ class ShadowLayout : FrameLayout {
             }
         }
 
-        canvas.save()
-        canvas.clipPath(outlinePath)
         canvas.drawPath(backgroundPath, backgroundPaint)
-        canvas.restore()
-        canvas.drawPath(outlinePath, outlinePaint)
+
+        if (stroke?.isEnable == true) {
+            canvas.drawPath(outlinePath, outlinePaint)
+        }
 
         if (clipOutLine) {
             canvas.clipPath(outlinePath)
@@ -499,11 +513,12 @@ class ShadowLayout : FrameLayout {
             )
         )
 
-        with(outlinePaint) {
+        if (stroke?.isEnable == true) {
 
-            isAntiAlias = true
+            with(outlinePaint) {
 
-            if (stroke?.isEnable == true) {
+                isAntiAlias = true
+
                 val targetColor = if (strokeGradient?.isEnable == true) {
                     Color.WHITE
                 } else {
@@ -525,36 +540,6 @@ class ShadowLayout : FrameLayout {
 
                 if (stroke!!.blur != 0f) {
                     maskFilter = BlurMaskFilter(stroke!!.blur, stroke!!.blurType)
-                } else {
-                    maskFilter = null
-                }
-
-                if (ViewHelper.onSetAlphaFromColor(defaultAlpha, targetColor)) {
-                    alpha = ViewHelper.getIntAlpha(defaultAlpha)
-                }
-            } else {
-                val targetColor = if (gradient?.isEnable == true) {
-                    Color.WHITE
-                } else {
-                    backgroundColor
-                }
-                color = targetColor
-                strokeWidth = 0f
-                style = Paint.Style.FILL
-
-                shader = if (gradient?.isEnable == true) {
-                    gradient?.getGradientShader(
-                        offset.left,
-                        offset.top,
-                        offset.right,
-                        offset.bottom
-                    )
-                } else {
-                    null
-                }
-
-                if (backgroundBlur != 0f) {
-                    maskFilter = BlurMaskFilter(backgroundBlur, backgroundBlurType)
                 } else {
                     maskFilter = null
                 }
@@ -611,8 +596,20 @@ class ShadowLayout : FrameLayout {
         }
 
         backgroundPath.apply {
+
             reset()
-            addRect(offset, Path.Direction.CW)
+
+            if (stroke?.isEnable == true) {
+                addPath(outlinePath.getInnerPath(stroke!!.strokeWidth))
+            } else {
+                if (radius == null) {
+                    addRect(offset, Path.Direction.CW)
+                } else {
+                    val height = offset.height()
+                    addRoundRect(offset, radius!!.getRadiusArray(height), Path.Direction.CW)
+                }
+            }
+
             close()
         }
     }
