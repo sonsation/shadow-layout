@@ -5,6 +5,7 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import com.sonsation.library.effet.*
+import com.sonsation.library.model.Padding
 import com.sonsation.library.utils.ViewHelper
 import com.sonsation.library.utils.ViewHelper.getInnerPath
 import kotlin.math.abs
@@ -34,6 +35,10 @@ class ShadowLayout : FrameLayout {
 
     private val layoutRect by lazy {
         RectF()
+    }
+
+    private val padding by lazy {
+        Padding(0, 0, 0, 0)
     }
 
     private var backgroundColor = ViewHelper.NOT_SET_COLOR
@@ -84,7 +89,6 @@ class ShadowLayout : FrameLayout {
         try {
 
             clipOutLine = a.getBoolean(R.styleable.ShadowLayout_clipToOutline, true)
-
             stroke = Stroke(
                 strokeColor =
                 a.getColor(R.styleable.ShadowLayout_stroke_color, ViewHelper.NOT_SET_COLOR),
@@ -216,6 +220,8 @@ class ShadowLayout : FrameLayout {
         } finally {
             a.recycle()
             isInitialized = true
+            padding.setPadding(paddingStart, paddingTop, paddingEnd, paddingBottom)
+            updatePadding()
         }
     }
 
@@ -258,10 +264,17 @@ class ShadowLayout : FrameLayout {
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
 
+        if (!changed) {
+            return
+        }
+
         val width = abs(right - left).toFloat()
         val height = abs(bottom - top).toFloat()
-
         layoutRect.set(0f, 0f, width, height)
+    }
+
+    private fun updatePadding() {
+        setPadding(padding.start, padding.top, padding.end, padding.bottom)
     }
 
     fun updateBackgroundColor(color: Int) {
@@ -376,7 +389,45 @@ class ShadowLayout : FrameLayout {
 
     fun updateStrokeWidth(strokeWidth: Float) {
         stroke?.updateStrokeWidth(strokeWidth)
-        invalidate()
+        updatePadding()
+    }
+
+    override fun setPadding(
+        left: Int,
+        top: Int,
+        right: Int,
+        bottom: Int
+    ) {
+
+        padding.setPadding(left, top, right, bottom)
+
+        if (stroke?.isEnable == true) {
+            val strokeWidth = stroke?.takeIf { it.isEnable }?.strokeWidth ?: 0f
+            val offset = strokeWidth.div(2f).toInt()
+            super.setPadding(left + offset, top + offset, right + offset, bottom + offset)
+            return
+        }
+
+        super.setPadding(left, top, right, bottom)
+    }
+
+    override fun setPaddingRelative(
+        start: Int,
+        top: Int,
+        end: Int,
+        bottom: Int
+    ) {
+
+        padding.setPadding(start, top, end, bottom)
+
+        if (stroke?.isEnable == true) {
+            val strokeWidth = stroke?.takeIf { it.isEnable }?.strokeWidth ?: 0f
+            val offset = strokeWidth.div(2f).toInt()
+            super.setPaddingRelative(start + offset, top + offset, end + offset, bottom + offset)
+            return
+        }
+
+        super.setPaddingRelative(start, top, end, bottom)
     }
 
     fun updateStrokeColor(color: Int) {
