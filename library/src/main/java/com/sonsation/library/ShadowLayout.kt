@@ -53,7 +53,7 @@ class ShadowLayout : FrameLayout {
         mutableListOf<Shadow>()
     }
 
-    private var clipOutLine = true
+    private var clipOutLine = false
     private var isInitialized = false
 
 
@@ -88,7 +88,7 @@ class ShadowLayout : FrameLayout {
 
         try {
 
-            clipOutLine = a.getBoolean(R.styleable.ShadowLayout_clipToOutline, true)
+            clipOutLine = a.getBoolean(R.styleable.ShadowLayout_clipToOutline, false)
             stroke = Stroke(
                 strokeColor =
                 a.getColor(R.styleable.ShadowLayout_stroke_color, ViewHelper.NOT_SET_COLOR),
