@@ -2,7 +2,6 @@ package com.sonsation.library
 
 import android.content.Context
 import android.graphics.*
-import android.os.Build
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import com.sonsation.library.effet.*
@@ -51,7 +50,7 @@ class ShadowLayout : FrameLayout {
 
     private var clipOutLine = true
     private var isInitialized = false
-    private var defaultAlpha = 0f
+
 
     constructor(context: Context) : super(context) {
         init(context, null, 0)
@@ -71,14 +70,10 @@ class ShadowLayout : FrameLayout {
 
     private fun init(context: Context, attributeSet: AttributeSet?, defStyle: Int) {
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            setLayerType(LAYER_TYPE_SOFTWARE, null)
-        }
-
         if (attributeSet == null) {
             return
         }
-        
+
         initAttrsLayout(context, attributeSet, defStyle)
     }
 
@@ -89,7 +84,6 @@ class ShadowLayout : FrameLayout {
         try {
 
             clipOutLine = a.getBoolean(R.styleable.ShadowLayout_clipToOutline, true)
-            defaultAlpha = a.getFloat(R.styleable.ShadowLayout_android_alpha, 1f)
 
             stroke = Stroke(
                 strokeColor =
@@ -225,13 +219,23 @@ class ShadowLayout : FrameLayout {
         }
     }
 
+    override fun hasOverlappingRendering(): Boolean {
+        return if (stroke?.isEnable == true ||
+                shadows.any { it.isEnable } ||
+                backgroundBlur != 0f) {
+            false
+        } else {
+            super.hasOverlappingRendering()
+        }
+    }
+
     override fun dispatchDraw(canvas: Canvas) {
 
         setOutlineAndBackground(layoutRect)
 
         shadows.forEach { shadow ->
             shadow.updatePath(outlineRect, radius)
-            shadow.updatePaint(defaultAlpha)
+            shadow.updatePaint()
 
             if (shadow.isEnable) {
                 canvas.drawPath(shadow.path, shadow.paint)
@@ -258,29 +262,6 @@ class ShadowLayout : FrameLayout {
         val height = abs(bottom - top).toFloat()
 
         layoutRect.set(0f, 0f, width, height)
-
-        for (i in 0 until childCount) {
-            getChildAt(i)?.alpha = defaultAlpha
-        }
-    }
-
-    override fun setAlpha(alpha: Float) {
-
-        if (!isInitialized) {
-            return
-        }
-
-        defaultAlpha = alpha
-
-        invalidate()
-
-        for (i in 0 until childCount) {
-            getChildAt(i)?.alpha = alpha
-        }
-    }
-
-    override fun getAlpha(): Float {
-        return defaultAlpha
     }
 
     fun updateBackgroundColor(color: Int) {
@@ -543,10 +524,6 @@ class ShadowLayout : FrameLayout {
                 } else {
                     maskFilter = null
                 }
-
-                if (ViewHelper.onSetAlphaFromColor(defaultAlpha, targetColor)) {
-                    alpha = ViewHelper.getIntAlpha(defaultAlpha)
-                }
             }
         }
 
@@ -575,10 +552,6 @@ class ShadowLayout : FrameLayout {
                 maskFilter = BlurMaskFilter(backgroundBlur, backgroundBlurType)
             } else {
                 maskFilter = null
-            }
-
-            if (ViewHelper.onSetAlphaFromColor(defaultAlpha, targetColor)) {
-                alpha = ViewHelper.getIntAlpha(defaultAlpha)
             }
         }
 

@@ -17,16 +17,11 @@ class Shadow(
     val isEnable: Boolean
         get() = (blurSize != 0f || shadowSpread != 0f) && shadowColor != ViewHelper.NOT_SET_COLOR
 
-    fun updatePaint(alpha: Float) {
+    fun updatePaint() {
 
         paint.apply {
             isAntiAlias = true
             color = shadowColor
-
-            if (ViewHelper.onSetAlphaFromColor(alpha, shadowColor)) {
-                this.alpha = ViewHelper.getIntAlpha(alpha)
-            }
-
             style = Paint.Style.FILL
 
             if (blurSize != 0f) {
